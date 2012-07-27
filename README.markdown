@@ -1,11 +1,11 @@
-JBehave Eclipse plugin
-=======================
+JBehave Eclipse 
+===============
 
 Requirements
 ------------
 Eclipse (Indigo or Juno)
 
-Features: 
+Features of JBehave Eclipse Plugin: 
 
 * Custom Story Parser
 * Story Editor
@@ -36,9 +36,9 @@ http://jbehave.org/reference/eclipse/updates/
 
 Local Build
 -----------
-Build using instructions in ../BUILD.markdown 
+Build using instructions in BUILD.markdown 
 
-Built repository found in ../org.jbehave.eclipse.repository/target/repository
+Built repository found in org.jbehave.eclipse.repository/target/repository
 
 RELEASE NOTES
 =============
