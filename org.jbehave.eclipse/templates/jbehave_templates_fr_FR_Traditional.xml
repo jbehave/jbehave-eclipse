@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+<template
+  context="org.jbehave.jbehave.story"
+  description="Story sample"
+  id="org.jbehave.jbehave.story.sample1_fr_FR_Traditional"
+  autoinsert="true"
+  name="sample1">${Scenario} un trader n'est pas alerté en-dessous d'un certain seuil
+ 
+${Given} un stock d'action ${symbol} et un seuil de ${threshold:10.0f}
+${When} le stock est vendu à ${value:5.0}
+${Then} l'alerte doit être ${status:OFF}
+</template>
+<template
+  context="org.jbehave.jbehave.story"
+  description="Story sample with narrative and two scenario"
+  id="org.jbehave.jbehave.story.sample2_fr_FR_Traditional"
+  autoinsert="true"
+  name="sample2">Un histoire est une collection de scénario
+ 
+${Narrative}
+${InOrderTo} communiquer de manière efficace avec le métier sur des fonctionalités
+${AsA} que membre de l'équipe de développement
+${IWantTo} utiliser le Behaviour-Driven Development
+     
+${Scenario} Un scénario est une collection d'étapes executables de différents types
+ 
+${Given} que une étape représente une précondition à un événement ou une action
+${When} l'étape représentant cet évènement se produit
+${Then} cette étape représente le résultat attendu
+ 
+${Scenario} Un autre scénario explorant différentes combinaison d'évènements.
+ 
+${Given} une précondition
+${When} un évènement négatif se produit
+${Then} le résultat attendu doit être capturé
+</template>
+</templates>

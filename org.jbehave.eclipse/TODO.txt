@@ -1,0 +1,5 @@
+- Step lookup logic should take into account entire step (including keyword)
+- Dialogs should display entire step (including keyword)
+- Step candidate should mirror core version
+- Steps with regex tokens are not recognised, e.g.
+When traders are subset to ".*y" by name

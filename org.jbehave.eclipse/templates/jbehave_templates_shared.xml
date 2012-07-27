@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+<template
+	context="org.jbehave.jbehave.story"
+	description="Story preamble"
+	id="org.jbehave.jbehave.story.preamble_shared"
+	autoinsert="true"
+	name="preamble">${Narrative} 
+${InOrderTo} ${inOrderTo}
+${AsA} ${asA}
+${IWantTo} ${iWantTo}
+</template>
+<template
+	context="org.jbehave.jbehave.story"
+	description="Simple scenario"
+	id="org.jbehave.jbehave.story.scenario_shared"
+	autoinsert="true"
+	name="scenario">
+${Scenario}  ${scenarioTitle}
+ 
+${Given} ${given}
+${And} ${givenAnd}
+${When} ${when}
+${And} ${whenAnd}
+${Then} ${then}
+</template>
+</templates>

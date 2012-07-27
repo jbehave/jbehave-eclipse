@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	
+	<conversionRule conversionWord="error" 
+                  converterClass="org.jbehave.logback.ErrorLevelConverter" />
+	
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>%d{HH:mm:ss.SSS} %error %-32C{0}#%-16M - %msg%n</Pattern>
+	  	</encoder>
+	</appender>
+
+	<logger name="org.jbehave" level="warn" />
+	<logger name="org.jbehave.eclipse.JBehaveProject" level="debug" />
+    <logger name="org.jbehave.eclipse.cache" level="debug" />
+	<logger name="org.jbehave.eclipse.editor.story.scanner" level="info" />
+	<logger name="org.jbehave.eclipse.editor.story.scanner.AbstractStoryPartBasedScanner" level="debug"/>
+	<logger name="org.jbehave.eclipse.editor.story.scanner" level="debug" />
+
+	<root level="error">
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>

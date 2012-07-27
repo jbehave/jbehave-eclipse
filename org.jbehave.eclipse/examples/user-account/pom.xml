@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.jbehave.ide.examples</groupId>
+	<artifactId>eclipse-user-account-example</artifactId>
+	<version>1.0-SNAPSHOT</version>
+
+	<properties>
+		<jbehave.version>3.6.7</jbehave.version>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>org.jbehave</groupId>
+			<artifactId>jbehave-core</artifactId>
+			<version>${jbehave.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/story</directory>
+			</resource>
+		</resources>
+	</build>
+</project>

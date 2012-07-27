@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="JBehave Story Editor"
+            extensions="story"
+            icon="icons/editor.png"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            class="org.jbehave.eclipse.editor.story.StoryEditor"
+            id="org.jbehave.eclipse.editor.story.StoryEditor">
+      </editor>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.editors.templates">
+      <include
+            file="templates/jbehave_templates_shared.xml" />
+      <include
+            file="templates/jbehave_templates_en.xml" />
+      <include
+            file="templates/jbehave_templates_fr.xml"/>
+      <include
+            file="templates/jbehave_templates_fr_FR_Traditional.xml"/>
+            
+      <contextType
+            class="org.jbehave.eclipse.editor.story.completion.StoryContextType"
+            id="org.jbehave.jbehave.story"
+            name="JBehave Templates">
+      </contextType>
+   </extension>
+   
+   <extension
+       point="org.eclipse.ui.commands">
+      <command
+            id="org.jbehave.eclipse.actions.show-outline"
+            name="Show outline"/>
+      <command
+            id="org.jbehave.eclipse.actions.quick-search"
+            name="Quicl Search"/>
+      <command
+            id="org.jbehave.eclipse.actions.jump-to-declaration"
+            name="Jump to declaration"/>
+      <command
+            id="org.jbehave.eclipse.actions.toggle-comment"
+            name="Toggle comment"/>
+   </extension>
+   
+   <extension
+       point="org.eclipse.ui.contexts">
+     <context
+          id="org.jbehave.eclipse.storyEditorScope"
+          name="JBehave Story Editor"
+          parentId="org.eclipse.ui.textEditorScope"/>
+   </extension>
+   
+   <extension
+       point="org.eclipse.ui.bindings">
+       <!--  win32:  M1=CTRL,    M2=SHIFT, M3=ALT, M4=-
+            carbon: M1=COMMAND, M2=SHIFT, M3=ALT, M4=CTRL -->
+      <key
+            commandId="org.jbehave.eclipse.actions.show-outline"
+            contextId="org.jbehave.eclipse.storyEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+O"/>
+      <key
+            commandId="org.jbehave.eclipse.actions.quick-search"
+            contextId="org.jbehave.eclipse.storyEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+J"/>
+      <key
+            commandId="org.jbehave.eclipse.actions.jump-to-declaration"
+            contextId="org.jbehave.eclipse.storyEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+G"/>
+      <key
+            commandId="org.jbehave.eclipse.actions.toggle-comment"
+            contextId="org.jbehave.eclipse.storyEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+T"/>
+   </extension>
+   
+   <extension
+	   id="storyMarker"
+	   point="org.eclipse.core.resources.markers"
+	   name="JBehave marker">
+	   <super type="org.eclipse.core.resources.problemmarker"/>
+	   <super type="org.eclipse.core.resources.textmarker"/>
+	   <persistent value="true"/>
+	   <attribute name="errorCode"/>
+	   <attribute name="message"/>
+	   <attribute name="stepsHtml"/>
+	</extension>
+	
+	<extension point="org.eclipse.ui.ide.markerResolution"> 
+		<markerResolutionGenerator 
+			markerType="org.jbehave.eclipse.storyMarker" 
+			class="org.jbehave.eclipse.editor.story.MarkerResolutionGenerator"> 
+		</markerResolutionGenerator>
+	</extension>
+
+    <extension point="org.eclipse.ui.preferencePages">
+    	<page
+            class="org.jbehave.eclipse.preferences.PluginPreferencePage"
+            id="org.jbehave.eclipse.preferences"
+            name="JBehave">
+      	</page>
+        <page
+            category="org.jbehave.eclipse.preferences"
+         	class="org.jbehave.eclipse.preferences.EditorColorPreferencePage"
+          	id="org.jbehave.eclipse.preferences.editor"
+          	name="Editor Themes">
+        </page>
+        <page
+            category="org.jbehave.eclipse.preferences"
+         	class="org.jbehave.eclipse.preferences.ProjectPreferencePage"
+          	id="org.jbehave.eclipse.preferences.project"
+          	name="Project Settings">
+        </page>
+        <page
+            category="org.jbehave.eclipse.preferences"
+            class="org.jbehave.eclipse.preferences.ClassScannerPreferencePage"
+            id="org.jbehave.eclipse.preferences.classScanner"
+            name="Class Scanner">
+      	</page>
+		<page
+            category="org.jbehave.eclipse.preferences"
+            class="org.jbehave.eclipse.preferences.LoggerPreferencePage"
+            id="org.jbehave.eclipse.preferences.logger"
+            name="Logger Levels">
+      	</page>      	
+    </extension>
+ 
+    <extension point="org.eclipse.core.runtime.preferences">
+        <initializer
+          class="org.jbehave.eclipse.preferences.PreferenceInitializer">
+        </initializer>
+    </extension>
+
+	<extension point="org.eclipse.ui.propertyPages">
+	  <page
+            class="org.jbehave.eclipse.preferences.PluginPreferencePage"
+            id="org.jbehave.eclipse.properties"
+            name="JBehave">
+		<enabledWhen>
+ 			<adapt type="org.eclipse.core.resources.IProject">
+		          <test property="org.eclipse.core.resources.projectNature" value="org.eclipse.jdt.core.javanature"/>
+		     </adapt>
+        </enabledWhen>
+      </page>
+      <page
+            category="org.jbehave.eclipse.properties"
+         	class="org.jbehave.eclipse.preferences.ProjectPreferencePage"
+          	id="org.jbehave.eclipse.properties.project"
+          	name="Project settings">
+       	<enabledWhen>
+ 			<adapt type="org.eclipse.core.resources.IProject">
+		          <test property="org.eclipse.core.resources.projectNature" value="org.eclipse.jdt.core.javanature"/>
+		     </adapt>
+        </enabledWhen>
+      </page>
+      <page
+            category="org.jbehave.eclipse.properties"
+            class="org.jbehave.eclipse.preferences.ClassScannerPreferencePage"
+            id="org.jbehave.eclipse.properties.classScanner"
+            name="JBehave Class Scanner">
+		<enabledWhen>
+ 			<adapt type="org.eclipse.core.resources.IProject">
+		          <test property="org.eclipse.core.resources.projectNature" value="org.eclipse.jdt.core.javanature"/>
+		     </adapt>
+        </enabledWhen>
+      </page>
+    </extension>
+ <extension
+       point="org.eclipse.ui.views">
+    <view
+          class="org.jbehave.eclipse.editor.story.StoryView"
+          icon="icons/view.png"
+          id="org.jbehave.eclipse.editor.StoryView"
+          name="JBehave">
+    </view>
+ </extension>
+</plugin>
