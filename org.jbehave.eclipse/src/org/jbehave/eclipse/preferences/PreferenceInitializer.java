@@ -80,7 +80,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
     protected void initializeDefaultProjectPreferences() {
         ProjectPreferences projectPreferences = new ProjectPreferences(DefaultScope.INSTANCE);
         projectPreferences.setStoryLanguage("en");
-        projectPreferences.setAvailableStoryLanguages("de", "en", "fr", "it", "pt", "tr", "zh_TW");
+        projectPreferences.setAvailableStoryLanguages("de", "en", "fr", "it", "no", "pt", "sv", "tr", "zh_TW");
         projectPreferences.setParameterPrefix("$");
         try {
             projectPreferences.store();

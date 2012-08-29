@@ -138,7 +138,7 @@ public class StepParserTest {
     public void usecase_ex2_light() throws Exception {
         StepCandidate user = givenStep("a user named $username");
         
-        storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx03-light.story"));
+        storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx03-light.story")).replace("\r\n", "\n");
         when(locator.findFirstStep("a user named $username")).thenReturn(user);
         
         IDocument document= new Document(storyAsText);
@@ -164,7 +164,7 @@ public class StepParserTest {
         StepCandidate credits = whenStep("user credits is $amount dollars");
         StepCandidate clicks = whenStep("user clicks on $button button");
         
-        storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx03.story"));
+        storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx03.story")).replace("\r\n", "\n");
         when(locator.findFirstStep("a user named $username")).thenReturn(user);
         when(locator.findFirstStep("user clicks on $button button")).thenReturn(clicks);
         when(locator.findFirstStep("user credits is 5 dollars")).thenReturn(credits);
@@ -208,7 +208,7 @@ public class StepParserTest {
         StepCandidate user = givenStep("a user named $username");
         StepCandidate credits = whenStep("user credits is $amount dollars");
         
-        storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx03.story"));
+        storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx03.story")).replace("\r\n", "\n");
         when(locator.findFirstStep("a user named $username")).thenReturn(user);
         when(locator.findFirstStep("user credits is 5 dollars")).thenReturn(credits);
         when(locator.findFirstStep("a user named username")).thenReturn(user);

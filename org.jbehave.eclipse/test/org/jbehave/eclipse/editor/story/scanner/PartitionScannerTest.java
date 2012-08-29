@@ -28,7 +28,7 @@ public class PartitionScannerTest {
     
     @Before
     public void setUp () throws IOException {
-        storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx01.story"));
+        storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx01.story")).replace("\r\n", "\n");
         jbehaveProject = mock(JBehaveProject.class);
         localizedSupport = new LocalizedStepSupport();
         localizedSupport.setStoryLocale(Locale.ENGLISH);

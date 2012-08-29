@@ -28,7 +28,8 @@ public class VisitingStoryParserTest {
 
     @Test
     public void parse_case1() throws IOException {
-        String storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx01.story"));
+        String story = "/data/UseCaseEx01.story";
+		String storyAsText = readToString(story);
 
         String[] expected = {
                 "offset: 0, length: 11, content: >>Narrative:\n<<", //
@@ -55,7 +56,8 @@ public class VisitingStoryParserTest {
 
     @Test
     public void parse_case4() throws IOException {
-        String storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx04.story"));
+        String story = "/data/UseCaseEx04.story";
+		String storyAsText = readToString(story);
         String[] expected = {
                 "offset: 0, length: 219, content: >>Given a new account named 'networkAgent' with the following properties (properties not set will be completed) \n|key|value|\n|Login|networkAgentLogin|\n|Password|networkAgentPassword|\n!-- Test login using a bad password !\n<<", //
                 "offset: 219, length: 31, content: >>When agent displays Login page\n<<", //
@@ -70,7 +72,8 @@ public class VisitingStoryParserTest {
 
     @Test
     public void parse_case5_exampleTable() throws IOException {
-        String storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx05-exampletable.story"));
+        String story = "/data/UseCaseEx05-exampletable.story";
+		String storyAsText = readToString(story);
         String[] expected = {
                 "offset: 0, length: 42, content: >>Given that Larry has done <trades> trades\n<<", //
                 "offset: 42, length: 87, content: >>Then the traders activity is: \n|name|trades|\n|Larry|<trades>|\n|Moe|1000|\n|Curly|2000|\n\n<<", //
@@ -80,7 +83,8 @@ public class VisitingStoryParserTest {
 
     @Test
     public void parse_case6_exampleTable() throws IOException {
-        String storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx06-exampletable.story"));
+        String story = "/data/UseCaseEx06-exampletable.story";
+		String storyAsText = readToString(story);
         String[] expected = {
                 "offset: 0, length: 220, content: >>Given a new account named 'networkAgent' with the following properties (properties not set will be completed) \n|key|value|\n|Login|networkAgentLogin|\n|Password|networkAgentPassword|\n\n!-- Test login using a bad password !\n<<",//
                 "offset: 220, length: 31, content: >>When agent displays Login page\n<<",//
@@ -90,10 +94,11 @@ public class VisitingStoryParserTest {
         assertElements(expected, parser.parse(storyAsText));
     }
 
+
     @Test
     public void parse_case7_exampleTable() throws IOException {
-        String storyAsText = IOUtils.toString(getClass().getResourceAsStream(
-                "/data/UseCaseEx07-exampletable-comment.story"));
+    	String story = "/data/UseCaseEx07-exampletable-comment.story";
+        String storyAsText = readToString(story);
         String[] expected = {
                 "offset: 0, length: 199, content: >>Given a new account named 'networkAgent' with the following properties (properties not set will be completed) \n|key|value|\n!-- Some comment\n|Login|networkAgentLogin|\n|Password|networkAgentPassword|\n\n<<",//
                 "offset: 199, length: 96, content: >>Examples:\n|foo|foo|\n|bar|whatever|\n|-- a comment\n|bar2|whatever|\n|-- yet another\n|bar3|whatever|<<"
@@ -101,6 +106,10 @@ public class VisitingStoryParserTest {
         assertElements(expected, parser.parse(storyAsText));
     }
 
+    private String readToString(String story) throws IOException {
+    	return IOUtils.toString(getClass().getResourceAsStream(story),"UTF-8").replace("\r\n", "\n");
+    }
+    
     private void assertElements(String[] expected, List<StoryElement> elements) {
         int index = 0;
         for (StoryElement element : elements) {
