@@ -7,14 +7,14 @@ public class WeightedStep implements Comparable<WeightedStep>, HasHTMLComment {
 	public final StepCandidate stepCandidate;
 	public final float weight;
 
-	public WeightedStep(StepCandidate stepCandidate, float weight) {
+	public WeightedStep(final StepCandidate stepCandidate, final float weight) {
 		this.stepCandidate = stepCandidate;
 		this.weight = weight;
 	}
 
 	@Override
-	public int compareTo(WeightedStep o) {
-		return (weight > o.weight) ? 1 : -1;
+	public int compareTo(final WeightedStep o) {
+		return Float.compare(weight, o.weight);
 	}
 
 	private String htmlComment;
