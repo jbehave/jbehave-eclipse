@@ -42,7 +42,15 @@ public class VisitingStoryParser {
 			if (read == CharIterator.EOF) {
 				break;
 			}
-			line.append((char) read);
+
+			// Allow leading whitespace on steps
+			if(offset == line.offset && Character.isSpaceChar(read)) {
+			  line.reset(offset+1);
+			}
+			else {
+			  line.append((char)read);
+			}
+
 			if (isNewlineCharacter(read)) {
 				if (line.startsWithBreakingKeyword(tree, block)) {
 					block.emitTo(visitor);

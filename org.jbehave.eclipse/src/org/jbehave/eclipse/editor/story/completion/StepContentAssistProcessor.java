@@ -76,6 +76,9 @@ public class StepContentAssistProcessor implements IContentAssistProcessor {
                 }
             }
             
+            // Allow leading whitespace.
+            lineStart = Strings.removeLeadingSpaces(lineStart);
+            
             logger.debug("Autocompletion offset: {} partition text: {}", offset, partitionText);
             logger.debug("Autocompletion line start: {}", lineStart);
 
