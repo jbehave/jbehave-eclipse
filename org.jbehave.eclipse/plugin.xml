@@ -182,4 +182,18 @@
           name="JBehave">
     </view>
  </extension>
+ <extension
+       point="org.eclipse.ui.newWizards">
+       <category
+            name="JBehave"
+            id="org.jbehave.eclipse.category">
+      </category>
+      <wizard
+            name="New story"
+            icon="icons/editor.png"
+            category="org.jbehave.eclipse.category"
+            class="org.jbehave.eclipse.wizards.NewStoryWizard"
+            id="org.jbehave.eclipse.wizards.NewStoryWizard">
+      </wizard>
+ </extension>
 </plugin>
