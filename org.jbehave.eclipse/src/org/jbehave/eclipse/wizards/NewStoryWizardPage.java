@@ -29,40 +29,19 @@ public class NewStoryWizardPage extends WizardNewFileCreationPage {
 	 * @param pageName
 	 */
 	public NewStoryWizardPage(IStructuredSelection selection) {
-		super("wizardPage", selection);
-		setTitle("Story file");
-		setDescription("This wizard creates a new story file.");
-		setFileExtension("story");
+		super(Messages.NewStoryWizardPage_0, selection);
+		setTitle(Messages.NewStoryWizardPage_1);
+		setDescription(Messages.NewStoryWizardPage_2);
+		setFileExtension(Messages.NewStoryWizardPage_3);
 	}
 
 	@Override
 	protected InputStream getInitialContents() {
-		try {
-			String text = "Narrative:"
-					+ "\n"
-					+ "In Order To communicate effectively to the business some functionality"
-					+ "\n"
-					+ "As A development team"
-					+ "\n"
-					+ "I Want To use Behaviour-Driven Development"
-					+ "\n\n"
-					+ "Scenario:  A scenario is a collection of executable steps of different type"
-					+ "\n"
-					+ "Given step represents a precondition to an event"
-					+ "\n"
-					+ "When step represents the occurrence of the event"
-					+ "\n"
-					+ "Then step represents the outcome of the event"
-					+ "\n\n"
-					+ "Scenario:  Another scenario exploring different combination of events"
-					+ "\n" + "Given a precondition" + "\n"
-					+ "When a negative event occurs" + "\n"
-					+ "Then a the outcome should be captured" + "\n";
-			return new ByteArrayInputStream(text.getBytes("UTF-8"));
-			// return
-			// Activator.getDefault().getBundle().getEntry("/resources/newFileContents.config").openStream();
-		} catch (IOException e) {
-			return null; // ignore and create empty comments
-		}
+		
+			try {
+				return Activator.getDefault().getBundle().getEntry(Messages.NewStoryWizardPage_4).openStream();
+			} catch (IOException e) {
+				return null;
+			}
 	}
 }

@@ -36,7 +36,7 @@ public class NewStoryWizard extends Wizard implements INewWizard {
 	 */
 	public NewStoryWizard() {
 		super();
-		setWindowTitle("New story file");
+		setWindowTitle(Messages.NewStoryWizard_0);
 	}
 	
 	/**
