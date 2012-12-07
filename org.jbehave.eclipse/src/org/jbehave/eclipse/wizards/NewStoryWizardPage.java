@@ -1,47 +1,42 @@
 package org.jbehave.eclipse.wizards;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
+import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
+import org.eclipse.ui.internal.ide.misc.ResourceAndContainerGroup;
 import org.jbehave.eclipse.Activator;
 
-/**
- * The "New" wizard page allows setting the container for the new file as well
- * as the file name. The page will only accept file name without the extension
- * OR with the extension that matches the expected one (mpe).
- */
-
 public class NewStoryWizardPage extends WizardNewFileCreationPage {
-	private Text containerText;
 
-	private Text fileText;
-
-	private ISelection selection;
-
-	/**
-	 * Constructor for SampleNewWizardPage.
-	 * 
-	 * @param pageName
-	 */
 	public NewStoryWizardPage(IStructuredSelection selection) {
-		super(Messages.NewStoryWizardPage_0, selection);
-		setTitle(Messages.NewStoryWizardPage_1);
-		setDescription(Messages.NewStoryWizardPage_2);
-		setFileExtension(Messages.NewStoryWizardPage_3);
+		super(WizardsMessages.NewStoryWizardPage_0, selection);
+		setTitle(WizardsMessages.NewStoryWizardPage_1);
+		setDescription(WizardsMessages.NewStoryWizardPage_2);
+		setFileExtension(WizardsMessages.NewStoryWizardPage_3);
+		setFileName(WizardsMessages.NewStoryWizardPage_5);
 	}
 
 	@Override
 	protected InputStream getInitialContents() {
-		
-			try {
-				return Activator.getDefault().getBundle().getEntry(Messages.NewStoryWizardPage_4).openStream();
-			} catch (IOException e) {
-				return null;
-			}
+
+		try {
+			return Activator.getDefault().getBundle()
+					.getEntry(WizardsMessages.NewStoryWizardPage_4).openStream();
+		} catch (IOException e) {
+			return null;
+		}
 	}
 }
