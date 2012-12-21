@@ -196,4 +196,27 @@
             id="org.jbehave.eclipse.wizards.NewStoryWizard">
       </wizard>
  </extension>
+ <extension
+       point="org.eclipse.ui.popupMenus">
+    <objectContribution
+          adaptable="false"
+          id="org.jbehave.eclipse.generator.jbehaveMenuContribution"
+          nameFilter="*.story"
+          objectClass="org.eclipse.core.resources.IFile">
+       <menu
+             id="org.jbehave.eclipse.menu"
+             label="JBehave"
+             path="additions">
+          <separator
+                name="Generators">
+          </separator>
+       </menu>
+       <action
+             class="org.jbehave.eclipse.actions.CreateGenerateStepsWizardAction"
+             id="org.jbehave.eclipse.action1"
+             label="Generate Steps"
+             menubarPath="org.jbehave.eclipse.menu/Generators">
+       </action>
+    </objectContribution>
+ </extension>
 </plugin>
