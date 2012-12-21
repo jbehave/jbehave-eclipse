@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class GenerateStepsWizard extends Wizard implements INewWizard {
 	private static Logger log = LoggerFactory.getLogger(GenerateStepsWizard.class);
 	
-	private NewStoryWizardPage page;
+	private SelectStepsToGenerateWizardPage page;
 	private IStructuredSelection selection;
 	private IWorkbench workbench;
 
@@ -30,7 +30,7 @@ public class GenerateStepsWizard extends Wizard implements INewWizard {
 	}
 	
 	public void addPages() {
-		page = new NewStoryWizardPage(selection);
+		page = new SelectStepsToGenerateWizardPage(selection);
 		addPage(page);
 	}
 	
@@ -52,15 +52,15 @@ public class GenerateStepsWizard extends Wizard implements INewWizard {
 	public boolean performFinish() {
 		boolean performedOK = false;
 		
-		IFile file = page.createNewFile();
-		if(file != null)
-		{
-			// open the file in editor
-			openEditor(file);
-			
-			// everything is fine
-			performedOK = true;
-		}
+//		IFile file = page.createNewFile();
+//		if(file != null)
+//		{
+//			// open the file in editor
+//			openEditor(file);
+//			
+//			// everything is fine
+//			performedOK = true;
+//		}
 		return performedOK;
 	}
 	
