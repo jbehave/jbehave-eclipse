@@ -26,7 +26,7 @@ public class GenerateStepsWizard extends Wizard implements INewWizard {
 
 	public GenerateStepsWizard() {
 		super();
-		setWindowTitle(WizardsMessages.NewStoryWizard_0);
+		setWindowTitle(WizardsMessages.NewStoryWizardTitle);
 	}
 	
 	public void addPages() {

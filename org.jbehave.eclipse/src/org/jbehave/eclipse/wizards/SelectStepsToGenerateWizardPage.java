@@ -34,9 +34,9 @@ public class SelectStepsToGenerateWizardPage extends WizardPage {
 	private IStructuredSelection selection;
 
 	public SelectStepsToGenerateWizardPage(IStructuredSelection selection) {
-		super(WizardsMessages.NewStoryWizardPage_0);
-		setTitle(WizardsMessages.NewStoryWizardPage_1);
-		setDescription(WizardsMessages.NewStoryWizardPage_2);
+		super(WizardsMessages.NewStoryWizardPageName);
+		setTitle(WizardsMessages.NewStoryWizardPageTitle);
+		setDescription(WizardsMessages.NewStoryWizardPageDescription);
 		this.selection = selection;
 	}
 
