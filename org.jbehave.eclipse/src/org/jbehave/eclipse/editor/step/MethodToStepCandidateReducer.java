@@ -29,6 +29,9 @@ public class MethodToStepCandidateReducer {
     private static final Logger log = LoggerFactory
 	    .getLogger(MethodToStepCandidateReducer.class);
 
+    /**
+     * The simple names of the handled annotations
+     */
     private static final List<String> HANDLED_ANNOTATION_NAMES;
 
     static {
@@ -58,15 +61,15 @@ public class MethodToStepCandidateReducer {
     public void reduce(final IMethod method,
 	    final StepCandidateReduceListener listener)
 	    throws JavaModelException {
-	StepType stepType = null;
+	StepType stepType = StepType.GIVEN;
 	for (final IAnnotation annotation : method.getAnnotations()) {
 	    final String fullQualifiedName = getFullQualifiedName(annotation);
 	    IMemberValuePair[] annotationAttributes = annotation
 		    .getMemberValuePairs();
 	    Integer priority = Integer.valueOf(0);
 	    boolean basicStep = false;
-
 	    List<String> patterns = new ArrayList<String>();
+
 	    if (Given.class.getName().equals(fullQualifiedName)) {
 		stepType = StepType.GIVEN;
 		basicStep = true;
@@ -83,45 +86,30 @@ public class MethodToStepCandidateReducer {
 			annotationAttributes, "value");
 		priority = JBehaveProject.getValue(annotationAttributes,
 			"priority");
-		PatternVariantBuilder b = new PatternVariantBuilder(stepPattern);
-		for (String variant : b.allVariants()) {
-		    patterns.add(variant);
-		}
+
+		patterns = extractPatternVariants(patterns, stepPattern);
 	    } else if (Aliases.class.getName().equals(fullQualifiedName)) {
 		Object aliases = JBehaveProject.getValue(annotationAttributes,
 			"values");
 		if (aliases instanceof Object[]) {
 		    for (Object o : (Object[]) aliases) {
 			if (o instanceof String) {
-			    PatternVariantBuilder b = new PatternVariantBuilder(
+			    patterns = extractPatternVariants(patterns,
 				    (String) o);
-			    for (String variant : b.allVariants()) {
-				patterns.add(variant);
-			    }
 			}
 		    }
-		    if (!patterns.isEmpty() && stepType == null)
-			stepType = StepType.GIVEN;
 		}
 	    } else if (Alias.class.getName().equals(fullQualifiedName)) {
 		String stepPattern = JBehaveProject.getValue(
 			annotationAttributes, "value");
-		PatternVariantBuilder b = new PatternVariantBuilder(stepPattern);
-		for (String variant : b.allVariants()) {
-		    patterns.add(variant);
-		}
 
-		if (!patterns.isEmpty() && stepType == null)
-		    stepType = StepType.GIVEN;
+		patterns = extractPatternVariants(patterns, stepPattern);
 	    }
 
 	    if (!patterns.isEmpty()) {
 		log.debug("Analysing method: " + Containers.pathOf(method)
 			+ " found: " + patterns);
 		for (String stepPattern : patterns) {
-		    if (stepPattern == null) {
-			continue;
-		    }
 		    listener.add(method, stepType, stepPattern, priority);
 		}
 	    }
@@ -141,5 +129,16 @@ public class MethodToStepCandidateReducer {
 	fullQualifiedName.append(elementName);
 
 	return fullQualifiedName.toString();
+    }
+
+    private List<String> extractPatternVariants(List<String> patterns,
+	    final String pattern) {
+	PatternVariantBuilder b = new PatternVariantBuilder(pattern);
+
+	for (String variant : b.allVariants()) {
+	    patterns.add(variant);
+	}
+
+	return patterns;
     }
 }

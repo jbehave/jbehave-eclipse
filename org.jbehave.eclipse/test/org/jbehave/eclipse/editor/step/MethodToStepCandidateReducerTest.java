@@ -29,7 +29,7 @@ public class MethodToStepCandidateReducerTest {
     private List<IAnnotation> annotations;
 
     @Test
-    public void testContainerNotInformed_WhenMethodWithoutAnnotation()
+    public void testListenerNotInformed_WhenMethodWithoutAnnotation()
 	    throws JavaModelException {
 	givenNoAnnotation();
 
@@ -39,7 +39,7 @@ public class MethodToStepCandidateReducerTest {
     }
 
     @Test
-    public void testContainerInformedOnce_WhenOneGivenAnnotation()
+    public void testListenerInformedOnce_WhenOneGivenAnnotation()
 	    throws JavaModelException {
 	givenAnnotation("Given", "this Given test");
 
@@ -50,7 +50,7 @@ public class MethodToStepCandidateReducerTest {
     }
 
     @Test
-    public void testContainerInformedOnce_WhenOneWhenAnnotation()
+    public void testListenerInformedOnce_WhenOneWhenAnnotation()
 	    throws JavaModelException {
 	givenAnnotation("When", "this When test");
 
@@ -61,7 +61,7 @@ public class MethodToStepCandidateReducerTest {
     }
 
     @Test
-    public void testContainerInformedOnce_WhenOneThenAnnotation()
+    public void testListenerInformedOnce_WhenOneThenAnnotation()
 	    throws JavaModelException {
 	givenAnnotation("Then", "this test with Then");
 
@@ -72,7 +72,7 @@ public class MethodToStepCandidateReducerTest {
     }
 
     @Test
-    public void testContainerInformedWithPriority_WhenProvided()
+    public void testListenerInformedWithPriority_WhenProvided()
 	    throws JavaModelException {
 	givenAnnotation("Given", "a priority", 1);
 
@@ -83,7 +83,7 @@ public class MethodToStepCandidateReducerTest {
     }
 
     @Test
-    public void testContainerInformedWithFirst_WhenTwoAnnotations()
+    public void testListenerInformedWithFirst_WhenTwoAnnotations()
 	    throws JavaModelException {
 	givenAnnotation("Given", "a user is logged in");
 	givenAnnotation("When", "a user logs in");
@@ -95,7 +95,7 @@ public class MethodToStepCandidateReducerTest {
     }
 
     @Test
-    public void testContainerInformedWithSecond_WhenTwoAnnotations()
+    public void testListenerInformedWithSecond_WhenTwoAnnotations()
 	    throws JavaModelException {
 	givenAnnotation("Given", "a user is logged in");
 	givenAnnotation("When", "a user logs in");
@@ -107,7 +107,7 @@ public class MethodToStepCandidateReducerTest {
     }
 
     @Test
-    public void testContainerInformedWithAlias_WhenProvided()
+    public void testListenerInformedWithAlias_WhenProvided()
 	    throws JavaModelException {
 	givenAnnotation("Given", "a user is logged in");
 	givenAnnotation("Alias", "a user is present");
@@ -119,7 +119,7 @@ public class MethodToStepCandidateReducerTest {
     }
 
     @Test
-    public void testContainerInformedWithBasicStep_WhenAliasesProvided()
+    public void testListenerInformedWithBasicStep_WhenAliasesProvided()
 	    throws JavaModelException {
 	givenAnnotation("Given", "a user is logged in");
 	givenAliases(new String[] { "a user is present",
@@ -132,7 +132,7 @@ public class MethodToStepCandidateReducerTest {
     }
 
     @Test
-    public void testContainerInformedWithFirstAlias_WhenAliasesProvided()
+    public void testListenerInformedWithFirstAlias_WhenAliasesProvided()
 	    throws JavaModelException {
 	givenAnnotation("Given", "a user is logged in");
 	givenAliases(new String[] { "a user is present",
@@ -145,7 +145,7 @@ public class MethodToStepCandidateReducerTest {
     }
 
     @Test
-    public void testContainerInformedWithSecondAlias_WhenAliasesProvided()
+    public void testListenerInformedWithSecondAlias_WhenAliasesProvided()
 	    throws JavaModelException {
 	givenAnnotation("Given", "a user is logged in");
 	givenAliases(new String[] { "a user is present",
@@ -158,7 +158,7 @@ public class MethodToStepCandidateReducerTest {
     }
 
     @Test
-    public void testContainerInformed_WhenAnnotationWithFullQualifiedName()
+    public void testListenerInformed_WhenAnnotationWithFullQualifiedName()
 	    throws JavaModelException {
 	givenAnnotation("org.jbehave.core.annotations.Given",
 		"a fully qualified annotation");
@@ -167,6 +167,87 @@ public class MethodToStepCandidateReducerTest {
 
 	thenListenerShouldHaveBeenInformedOnlyWith(StepType.GIVEN,
 		"a fully qualified annotation", null);
+    }
+
+    @Test
+    public void testListenerInformedWithFirstVariant_WhenPassedInSimpleStep()
+	    throws JavaModelException {
+	givenAnnotation("When", "a {nice|simple} variant is used");
+
+	whenTheMethodWasProcessed();
+
+	thenListenerShouldHaveBeenInformedWith(StepType.WHEN,
+		"a nice variant is used", null);
+    }
+
+    @Test
+    public void testListenerInformedWithSecondVariant_WhenPassedInSimpleStep()
+	    throws JavaModelException {
+	givenAnnotation("When", "a {nice|simple} variant is used");
+
+	whenTheMethodWasProcessed();
+
+	thenListenerShouldHaveBeenInformedWith(StepType.WHEN,
+		"a simple variant is used", null);
+    }
+
+    @Test
+    public void testListenerInformedWithVariant_WhenPassedInAlias()
+	    throws JavaModelException {
+	givenAnnotation("When", "a variant is used");
+	givenAnnotation("Alias", "a {second|third} variant is used");
+
+	whenTheMethodWasProcessed();
+
+	thenListenerShouldHaveBeenInformedWith(StepType.WHEN,
+		"a second variant is used", 0);
+    }
+
+    @Test
+    public void testListenerInformedWithVariant_WhenPassedInAliases()
+	    throws JavaModelException {
+	givenAnnotation("Then", "a variant is possible");
+	givenAliases(new String[] { "a {final|test} variant is allowed" });
+
+	whenTheMethodWasProcessed();
+
+	thenListenerShouldHaveBeenInformedWith(StepType.THEN,
+		"a final variant is allowed", 0);
+    }
+
+    @Test
+    public void testListenerInformedWithAGivenStep_WhenAliasIsFirst()
+	    throws JavaModelException {
+	givenAnnotation("Alias", "the Given step is missing");
+
+	whenTheMethodWasProcessed();
+
+	thenListenerShouldHaveBeenInformedWith(StepType.GIVEN,
+		"the Given step is missing", 0);
+    }
+
+    @Test
+    public void testListenerInformedWithAWhenStep_WhenTheWhenHasAliasAndIsAfterAlias()
+	    throws JavaModelException {
+	givenAnnotation("Alias", "the Given step is missing");
+	givenAnnotation("When", "the it also has a When");
+	givenAnnotation("Alias", "it is getting confusing");
+
+	whenTheMethodWasProcessed();
+
+	thenListenerShouldHaveBeenInformedWith(StepType.WHEN,
+		"it is getting confusing", 0);
+    }
+
+    @Test
+    public void testListenerInformedWithAGivenStep_WhenAliasesAreFirst()
+	    throws JavaModelException {
+	givenAliases(new String[] { "a Given step still missing" });
+
+	whenTheMethodWasProcessed();
+
+	thenListenerShouldHaveBeenInformedWith(StepType.GIVEN,
+		"a Given step still missing", 0);
     }
 
     @Before
