@@ -4,9 +4,6 @@ import static org.jbehave.eclipse.util.Objects.o;
 
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,6 +20,8 @@ import org.jbehave.core.steps.StepType;
 import org.jbehave.eclipse.cache.JavaScanner;
 import org.jbehave.eclipse.cache.MethodCache;
 import org.jbehave.eclipse.cache.MethodCache.Callback;
+import org.jbehave.eclipse.cache.StepCandidateCacheListener;
+import org.jbehave.eclipse.cache.StepCandidateCacheLoader;
 import org.jbehave.eclipse.cache.container.Container;
 import org.jbehave.eclipse.editor.step.LocalizedStepSupport;
 import org.jbehave.eclipse.editor.step.MethodToStepCandidateReducer;
@@ -33,7 +32,6 @@ import org.jbehave.eclipse.preferences.ClassScannerPreferences;
 import org.jbehave.eclipse.preferences.ProjectPreferences;
 import org.jbehave.eclipse.util.LocaleUtils;
 import org.jbehave.eclipse.util.New;
-import org.jbehave.eclipse.util.ProcessGroup;
 import org.jbehave.eclipse.util.Visitor;
 import org.osgi.service.prefs.BackingStoreException;
 import org.slf4j.Logger;
@@ -41,18 +39,15 @@ import org.slf4j.LoggerFactory;
 
 import fj.Effect;
 
-public class JBehaveProject {
+public class JBehaveProject implements StepCandidateCacheListener {
     private static Logger log = LoggerFactory.getLogger(JBehaveProject.class);
 
     private IProject project;
     private MethodCache<StepCandidate> cache;
+    private StepCandidateCacheLoader cacheLoader;
     private LocalizedStepSupport localizedStepSupport;
     private ProjectPreferences projectPreferences;
     private ClassScannerPreferences classScannerPreferences;
-    //
-    private ReadWriteLock rwLock = new ReentrantReadWriteLock();
-    private AtomicInteger comod = new AtomicInteger();
-    private volatile int rebuildTick = -1;
     //
     private CopyOnWriteArrayList<JBehaveProjectListener> listeners = New.copyOnWriteArrayList();
 
@@ -60,10 +55,14 @@ public class JBehaveProject {
 
     public JBehaveProject(IProject project) {
         this.project = project;
-        this.cache = new MethodCache<StepCandidate>(newCallback());
+        this.cacheLoader = new StepCandidateCacheLoader(this);
         this.localizedStepSupport = new LocalizedStepSupport();
         initializeProjectPreferencesAndListener(project);
         initializeClassScannerPreferencesAndListener(project);
+    }
+
+    private MethodCache<StepCandidate> createMethodCache() {
+	return new MethodCache<StepCandidate>(newCallback());
     }
 
     protected void initializeClassScannerPreferencesAndListener(IProject project) {
@@ -87,6 +86,7 @@ public class JBehaveProject {
                 log.info("Project preference changed [{}]: <{}> -> <{}>",
                         o(changeEvent.getKey(), changeEvent.getOldValue(), changeEvent.getNewValue()));
                 reloadProjectPreferences();
+                requestCacheReload();
             }
         });
         this.reloadProjectPreferences();
@@ -111,7 +111,6 @@ public class JBehaveProject {
         parameterPrefix = projectPreferences.getParameterPrefix();
         
         log.info("Reloading project preferences, story locale: {}, parameter prefix: {}", storyLocale, parameterPrefix);
-        invalidateCache();
     }
     
     public void addListener(JBehaveProjectListener listener) {
@@ -164,7 +163,7 @@ public class JBehaveProject {
     public void notifyChanges(IJavaElementDelta delta) {
         int kind = delta.getKind();
         log.debug("Notifying change within project {}: {} ({})", o(project.getName(), delta, Integer.toBinaryString(kind)));
-        invalidateCache();
+        requestCacheReload();
     }
 
     public IProject getProject() {
@@ -180,73 +179,44 @@ public class JBehaveProject {
     }
 
     public void traverseSteps(Visitor<StepCandidate, ?> visitor) throws JavaModelException {
-        boolean rAcquired = true;
-        rwLock.readLock().lock();
-        try {
-            int mod = comod.get();
-            if (rebuildTick != mod) {
-                // promote lock
-                rwLock.readLock().unlock(); // must unlock first to obtain writelock
-                rAcquired = false;
-                rwLock.writeLock().lock();
-                try {
-                    mod = comod.get();
-                    if (rebuildTick != mod) {
-                        rebuildTick = mod;
-                        rebuild();
-                    }
-                    // Downgrade by acquiring read lock before releasing write lock
-                    rwLock.readLock().lock();
-                    rAcquired = true;
-                } finally {
-                    rwLock.writeLock().unlock(); // Unlock write, still hold read
-                }
-            }
-
-            log.debug("Traversing cache for project " + project.getName());
-            cache.traverse(visitor);
-        } finally {
-            if (rAcquired)
-                rwLock.readLock().unlock();
-        }
+	if (this.cache == null) {
+	    this.cache = createMethodCache();
+	    requestCacheReload();
+	}
+        log.debug("Traversing cache for project " + project.getName());
+        this.cache.traverse(visitor);
     }
 
-    protected void rebuild() {
-        log.info("Rebuilding cache for project " + project.getName());
-
-        ProcessGroup<Void> processGroup = Activator.getDefault().newProcessGroup();
-        try {
-            cache.rebuild(project, new Effect<JavaScanner<?>>() {
-                @Override
-                public void e(JavaScanner<?> scanner) {
-                    scanner.setFilterHash(classScannerPreferences.calculateHash());
-                    scanner.setPackageRootNameFilter(classScannerPreferences.getPackageRootMatcher());
-                    scanner.setPackageNameFilter(classScannerPreferences.getPackageMatcher());
-                    scanner.setClassNameFilter(classScannerPreferences.getClassMatcher());
-                }
-            }, processGroup);
-        } catch (JavaModelException e) {
-            log.error("Error during cache rebuild", e);
-            invalidateCache();
-        }
-
-        try {
-            processGroup.awaitTermination();
-        } catch (InterruptedException e) {
-            log.warn("Cache rebuild interrupted");
-            invalidateCache();
-        }
+    private void requestCacheReload() {
+	this.cacheLoader.requestReload(createMethodCache(), project, getMethodCacheScanInitializer());
+    }
+    
+    private Effect<JavaScanner<?>> getMethodCacheScanInitializer() {
+	return new Effect<JavaScanner<?>>() {
+	    @Override
+	    public void e(JavaScanner<?> scanner) {
+		scanner.setFilterHash(classScannerPreferences.calculateHash());
+		scanner.setPackageRootNameFilter(classScannerPreferences
+			.getPackageRootMatcher());
+		scanner.setPackageNameFilter(classScannerPreferences
+			.getPackageMatcher());
+		scanner.setClassNameFilter(classScannerPreferences
+			.getClassMatcher());
+	    }
+	};
     }
 
-    protected void invalidateCache() {
-        // invalidate cache
-        comod.incrementAndGet();
-        Job job = new Job("Cache invalidated") {
+    /** {@inheritDoc} */
+    @Override
+    public void cacheLoaded(MethodCache<StepCandidate> cache) {
+	this.cache = cache;
+	
+        Job job = new Job("JBehave steps cache updated") {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 for(JBehaveProjectListener listener : listeners) {
                     try {
-                        listener.stepsInvalidated();
+                        listener.stepsUpdated();
                     } catch (Exception e) {
                         log.error("Error during step invalidation notification: {}", listener, e);
                     }
@@ -255,8 +225,8 @@ public class JBehaveProject {
             }
         };
         job.setUser(false);
+        job.setSystem(true);
         job.schedule();
-
     }
 
     @SuppressWarnings("unchecked")
