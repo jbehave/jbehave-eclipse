@@ -2,8 +2,6 @@ package org.jbehave.eclipse;
 
 import static org.jbehave.eclipse.util.Objects.o;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,27 +15,25 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
-import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
-import org.jbehave.core.steps.PatternVariantBuilder;
 import org.jbehave.core.steps.StepType;
 import org.jbehave.eclipse.cache.JavaScanner;
 import org.jbehave.eclipse.cache.MethodCache;
 import org.jbehave.eclipse.cache.MethodCache.Callback;
 import org.jbehave.eclipse.cache.container.Container;
-import org.jbehave.eclipse.cache.container.Containers;
 import org.jbehave.eclipse.editor.step.LocalizedStepSupport;
+import org.jbehave.eclipse.editor.step.MethodToStepCandidateReducer;
 import org.jbehave.eclipse.editor.step.StepCandidate;
+import org.jbehave.eclipse.editor.step.StepCandidateReduceListener;
 import org.jbehave.eclipse.editor.step.StepLocator;
 import org.jbehave.eclipse.preferences.ClassScannerPreferences;
 import org.jbehave.eclipse.preferences.ProjectPreferences;
 import org.jbehave.eclipse.util.LocaleUtils;
 import org.jbehave.eclipse.util.New;
 import org.jbehave.eclipse.util.ProcessGroup;
-import org.jbehave.eclipse.util.StringDecorator;
 import org.jbehave.eclipse.util.Visitor;
 import org.osgi.service.prefs.BackingStoreException;
 import org.slf4j.Logger;
@@ -138,16 +134,33 @@ public class JBehaveProject {
 
     private Callback<IMethod, Container<StepCandidate>> newCallback() {
         return new Callback<IMethod, Container<StepCandidate>>() {
-            public void op(IMethod method, Container<StepCandidate> container) {
+            public void op(IMethod method, final Container<StepCandidate> container) {
+        	StepCandidateReduceListener listener = getStepCandidateReduceListener(container);
+                MethodToStepCandidateReducer reducer =
+            	    new MethodToStepCandidateReducer();
+                
                 try {
-                    addStepCandidates(method, container);
+                    reducer.reduce(method, listener);
                 } catch (JavaModelException e) {
                     log.error("Failed to add step candidates for method {}", method, e);
                 }
-            };
+            }
         };
     }
 
+    private StepCandidateReduceListener getStepCandidateReduceListener(
+	    final Container<StepCandidate> container) {
+	return new StepCandidateReduceListener() {
+	    
+	    @Override
+	    public void add(IMethod method, StepType stepType, String stepPattern,
+		    Integer priority) {
+		container.add(new StepCandidate(getLocalizedStepSupport(),
+			parameterPrefix, method, stepType, stepPattern, priority));
+	    }
+	};
+    };
+    
     public void notifyChanges(IJavaElementDelta delta) {
         int kind = delta.getKind();
         log.debug("Notifying change within project {}: {} ({})", o(project.getName(), delta, Integer.toBinaryString(kind)));
@@ -244,70 +257,6 @@ public class JBehaveProject {
         job.setUser(false);
         job.schedule();
 
-    }
-
-    private void addStepCandidates(IMethod method, Container<StepCandidate> container) throws JavaModelException {
-        String parameterPrefix = this.parameterPrefix;
-        StepType stepType = null;
-        for (IAnnotation annotation : method.getAnnotations()) {
-            String elementName = annotation.getElementName();
-            IMemberValuePair[] annotationAttributes = annotation.getMemberValuePairs();
-            Integer priority = Integer.valueOf(0);
-
-            List<String> patterns = new ArrayList<String>();
-            if (StringDecorator.decorate(elementName).endsWithOneOf("Given", "When", "Then")) {
-                // TODO check import declaration matches org.jbehave...
-                stepType = StepType.valueOf(elementName.toUpperCase());
-                String stepPattern = getValue(annotationAttributes, "value");
-                priority = getValue(annotationAttributes, "priority");
-                PatternVariantBuilder b = new PatternVariantBuilder(stepPattern);
-                for (String variant : b.allVariants()) {
-                    patterns.add(variant);
-                }
-            } else if (StringDecorator.decorate(elementName).endsWithOneOf("Aliases")) {
-                // TODO check import declaration matches org.jbehave...
-                Object aliases = getValue(annotationAttributes, "values");
-                if (aliases instanceof Object[]) {
-                    for (Object o : (Object[]) aliases) {
-                        if (o instanceof String) {
-                            PatternVariantBuilder b = new PatternVariantBuilder((String) o);
-                            for (String variant : b.allVariants()) {
-                                patterns.add(variant);
-                            }
-                        }
-                    }
-                    if (!patterns.isEmpty() && stepType == null)
-                        stepType = StepType.GIVEN;
-                }
-            } else if (StringDecorator.decorate(elementName).endsWithOneOf("Alias")) {
-                // TODO check import declaration matches org.jbehave...
-                String stepPattern = getValue(annotationAttributes, "value");
-                PatternVariantBuilder b = new PatternVariantBuilder(stepPattern);
-                for (String variant : b.allVariants()) {
-                    patterns.add(variant);
-                }
-
-                if (!patterns.isEmpty() && stepType == null)
-                    stepType = StepType.GIVEN;
-            }
-
-            if (!patterns.isEmpty()) {
-                log.debug("Analysing method: " + Containers.pathOf(method) + " found: " + patterns);
-                for (String stepPattern : patterns) {
-                    if (stepPattern == null){
-                        continue;
-                    }
-                    container.add(new StepCandidate(//
-                            getLocalizedStepSupport(),//
-                            parameterPrefix,//
-                            method, //
-                            annotation, //
-                            stepType, //
-                            stepPattern, //
-                            priority));
-                }
-            }
-        }
     }
 
     @SuppressWarnings("unchecked")
