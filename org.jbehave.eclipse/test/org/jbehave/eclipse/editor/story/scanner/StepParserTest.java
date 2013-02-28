@@ -89,15 +89,15 @@ public class StepParserTest {
     }
 
     private static StepCandidate givenStep(String content) {
-        return new StepCandidate(localizedSupport, "$", null, null, StepType.GIVEN, content, 0);
+        return new StepCandidate(localizedSupport, "$", null, StepType.GIVEN, content, 0);
     }
     
     private static StepCandidate whenStep(String content) {
-        return new StepCandidate(localizedSupport, "$", null, null, StepType.WHEN, content, 0);
+        return new StepCandidate(localizedSupport, "$", null, StepType.WHEN, content, 0);
     }
     
     private static StepCandidate thenStep(String content) {
-        return new StepCandidate(localizedSupport, "$", null, null, StepType.THEN, content, 0);
+        return new StepCandidate(localizedSupport, "$", null, StepType.THEN, content, 0);
     }
     
     @Test

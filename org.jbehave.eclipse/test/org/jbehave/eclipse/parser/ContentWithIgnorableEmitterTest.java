@@ -61,8 +61,7 @@ public class ContentWithIgnorableEmitterTest {
         localizedStepSupport.setStoryLocale(Locale.ENGLISH);
         
         IMethod method = null;
-        IAnnotation annotation = null;
-        candidate = new StepCandidate(localizedStepSupport, "$", method, annotation, StepType.GIVEN, STEP1, 0);
+        candidate = new StepCandidate(localizedStepSupport, "$", method, StepType.GIVEN, STEP1, 0);
         parametrizedStep = candidate.getParametrizedStep();
         
         collector = new Collector();
