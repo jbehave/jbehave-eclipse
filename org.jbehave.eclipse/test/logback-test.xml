@@ -2,7 +2,7 @@
 <configuration>
 	
 	<conversionRule conversionWord="error" 
-                  converterClass="org.jbehave.logback.ErrorLevelConverter" />
+                  converterClass="org.jbehave.eclipse.ErrorLevelConverter" />
 	
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -16,6 +16,7 @@
 	<logger name="org.jbehave.eclipse.editor.story.scanner" level="info" />
 	<logger name="org.jbehave.eclipse.editor.story.scanner.AbstractStoryPartBasedScanner" level="debug"/>
 	<logger name="org.jbehave.eclipse.editor.story.scanner" level="debug" />
+   <logger name="org.jbehave.eclipse.editor.step.MethodToStepCandidateReducer" level="debug" />
 
 	<root level="error">
 		<appender-ref ref="STDOUT" />
