@@ -1,12 +1,13 @@
 package org.jbehave.eclipse.cache;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
-import org.jbehave.eclipse.Activator;
 import org.jbehave.eclipse.editor.step.StepCandidate;
-import org.jbehave.eclipse.util.ProcessGroup;
+import org.jbehave.eclipse.util.MonitoredExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,18 +20,49 @@ public class StepCandidateCacheLoader {
     private static final Logger log = LoggerFactory
 	    .getLogger(StepCandidateCacheLoader.class);
 
+    private final Executor scanningExecutor;
+
+    private final Executor completionExecutor;
+
     private final StepCandidateCacheListener listener;
 
     private final AtomicBoolean loadInProgress = new AtomicBoolean(false);
 
     private Runnable pendingLoadRequest;
 
-    public StepCandidateCacheLoader(StepCandidateCacheListener listener) {
+    /**
+     * Constructor. The completionExecutor must work with a different thread
+     * pool than the scanningExecutor. Otherwise a dead lock will happen.
+     * 
+     * @param listener
+     *            the listener that will be informed of completion.
+     * @param scanningExecutor
+     *            the executor that will perform the scanning.
+     * @param completionExecutor
+     *            the executor that will wait for the scan completion and issue
+     *            the callback.
+     */
+    public StepCandidateCacheLoader(final StepCandidateCacheListener listener,
+	    final Executor scanningExecutor, final Executor completionExecutor) {
 	this.listener = listener;
+	this.scanningExecutor = scanningExecutor;
+	this.completionExecutor = completionExecutor;
     }
 
+    /**
+     * Requests to load and fill the given cache asynchronously. This method can
+     * be called any number of times, as long as a reload is in progress, only
+     * the last request will be processed when the current one finished.
+     * 
+     * @param cache
+     *            the cache to fill and return when done.
+     * @param project
+     *            the project from which to extract data.
+     * @param scanInitializer
+     *            the initializer used for the scanner.
+     */
     public void requestReload(MethodCache<StepCandidate> cache,
-	    IProject project, Effect<JavaScanner<?>> scanInitializer) {
+	    IJavaProject project, Effect<JavaScanner<?>> scanInitializer) {
 	Runnable request = getReloadAsRunnable(cache, project, scanInitializer);
 
 	synchronized (this.loadInProgress) {
@@ -43,32 +75,28 @@ public class StepCandidateCacheLoader {
     }
 
     private Runnable getReloadAsRunnable(
-	    final MethodCache<StepCandidate> cache, final IProject project,
+	    final MethodCache<StepCandidate> cache, final IJavaProject project,
 	    final Effect<JavaScanner<?>> scanInitializer) {
 	return new Runnable() {
 
 	    @Override
 	    public void run() {
-		log.info("Rebuilding cache for project " + project.getName());
-		Activator processGroupFactory = Activator.getDefault();
+		log.info("Rebuilding cache for project " + project.getElementName());
+		final MonitoredExecutor rebuildProcess = new MonitoredExecutor(
+			scanningExecutor);
 
-		final ProcessGroup<Void> rebuildProcess = processGroupFactory
-			.newProcessGroup();
 		try {
 		    cache.rebuild(project, scanInitializer, rebuildProcess);
 		} catch (JavaModelException e) {
 		    log.error("Error during startup of cache rebuild", e);
 		}
 
-		ProcessGroup<Void> completionProcess = processGroupFactory
-			.newProcessGroup();
-
-		completionProcess.spawn(new Runnable() {
+		completionExecutor.execute(new Runnable() {
 
 		    @Override
 		    public void run() {
 			try {
-			    rebuildProcess.awaitTermination();
+			    rebuildProcess.awaitCompletion();
 			    onCacheLoaded(cache);
 			} catch (InterruptedException e) {
 			    Thread.interrupted();

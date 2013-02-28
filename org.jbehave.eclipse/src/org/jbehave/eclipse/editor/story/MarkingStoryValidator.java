@@ -26,8 +26,8 @@ import org.jbehave.eclipse.editor.step.TransformByPriority;
 import org.jbehave.eclipse.editor.text.MarkData;
 import org.jbehave.eclipse.parser.RegexUtils;
 import org.jbehave.eclipse.parser.StoryElement;
+import org.jbehave.eclipse.util.MonitoredExecutor;
 import org.jbehave.eclipse.util.New;
-import org.jbehave.eclipse.util.ProcessGroup;
 import org.jbehave.eclipse.util.Strings;
 import org.jbehave.eclipse.util.Visitor;
 import org.slf4j.Logger;
@@ -76,13 +76,13 @@ public class MarkingStoryValidator {
         
         Activator.logInfo(MarkingStoryValidator.class.getSimpleName()+": Validating parts " + parts);
         
-        ProcessGroup<?> group = Activator.getDefault().newProcessGroup();
-        group.spawn(checkStepsAsRunnable(parts));
-        group.spawn(checkNarrativeAsRunnable(parts));
+        MonitoredExecutor group = new MonitoredExecutor(Activator.getDefault().getExecutor());
+        group.execute(checkStepsAsRunnable(parts));
+        group.execute(checkNarrativeAsRunnable(parts));
 
         try {
             Activator.logInfo(MarkingStoryValidator.class.getSimpleName()+": Awaiting termination of validation");
-            group.awaitTermination();
+            group.awaitCompletion();
         } catch (InterruptedException e) {
             Activator.logError(MarkingStoryValidator.class.getSimpleName()+": Error while validating parts: " + parts, e);
         }

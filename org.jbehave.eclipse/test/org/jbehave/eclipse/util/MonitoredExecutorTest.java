@@ -7,17 +7,17 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jbehave.eclipse.util.ProcessGroup;
+import org.jbehave.eclipse.util.MonitoredExecutor;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ProcessGroupTest {
+public class MonitoredExecutorTest {
 
-    private ProcessGroup<Integer> group;
+    private MonitoredExecutor group;
     
     @Before
     public void setUp () {
-        group = new ProcessGroup<Integer>(Executors.newFixedThreadPool(4));
+        group = new MonitoredExecutor(Executors.newFixedThreadPool(4));
     }
     
     @Test
@@ -28,16 +28,16 @@ public class ProcessGroupTest {
         final AtomicInteger counter = new AtomicInteger();
         for(int i=0;i<NB;i++) {
             final int iRef = i;
-            group.spawn(new Runnable () {
+            group.execute(new Runnable () {
                 @Override
                 public void run() {
                     for(int i=0;i<NB_TASKS;i++) {
-                        group.spawn(new Task(iRef+"-"+i, counter));
+                        group.execute(new Task(iRef+"-"+i, counter));
                     }
                 }
             });
         }
-        group.awaitTermination();
+        group.awaitCompletion();
         assertThat(counter.get(), equalTo(NB*NB_TASKS));
     }
     

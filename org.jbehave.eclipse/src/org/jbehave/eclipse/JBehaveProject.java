@@ -4,6 +4,7 @@ import static org.jbehave.eclipse.util.Objects.o;
 
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -13,8 +14,10 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.jbehave.core.steps.StepType;
 import org.jbehave.eclipse.cache.JavaScanner;
@@ -55,7 +58,9 @@ public class JBehaveProject implements StepCandidateCacheListener {
 
     public JBehaveProject(IProject project) {
         this.project = project;
-        this.cacheLoader = new StepCandidateCacheLoader(this);
+	this.cacheLoader = new StepCandidateCacheLoader(this,
+		Activator.getDefault().getExecutor(),
+		JBehaveProject.getSystemJobAsExecutor("JBehave cache refresh task"));
         this.localizedStepSupport = new LocalizedStepSupport();
         initializeProjectPreferencesAndListener(project);
         initializeClassScannerPreferencesAndListener(project);
@@ -188,7 +193,8 @@ public class JBehaveProject implements StepCandidateCacheListener {
     }
 
     private void requestCacheReload() {
-	this.cacheLoader.requestReload(createMethodCache(), project, getMethodCacheScanInitializer());
+	IJavaProject javaProject = (IJavaProject)JavaCore.create(project);
+	this.cacheLoader.requestReload(createMethodCache(), javaProject, getMethodCacheScanInitializer());
     }
     
     private Effect<JavaScanner<?>> getMethodCacheScanInitializer() {
@@ -204,6 +210,31 @@ public class JBehaveProject implements StepCandidateCacheListener {
 			.getClassMatcher());
 	    }
 	};
+    }
+
+    private static Executor getSystemJobAsExecutor(final String jobName) {
+	return new Executor() {
+	    
+	    @Override
+	    public void execute(Runnable command) {
+		JBehaveProject.runRunnableAsSystemJob(command, jobName);
+	    }
+	};
+    }
+
+    private static void runRunnableAsSystemJob(final Runnable runnable, final String jobName) {
+        Job job = new Job(jobName) {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+        	runnable.run();
+
+                return Status.OK_STATUS;
+            }
+        };
+        
+        job.setUser(false);
+        job.setSystem(true);
+        job.schedule();
     }
 
     /** {@inheritDoc} */
