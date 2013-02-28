@@ -1,18 +1,22 @@
 package org.jbehave.eclipse.editor.step;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
+import org.jbehave.core.annotations.Alias;
+import org.jbehave.core.annotations.Aliases;
+import org.jbehave.core.annotations.Given;
+import org.jbehave.core.annotations.Then;
+import org.jbehave.core.annotations.When;
 import org.jbehave.core.steps.PatternVariantBuilder;
 import org.jbehave.core.steps.StepType;
 import org.jbehave.eclipse.JBehaveProject;
-import org.jbehave.eclipse.cache.container.Container;
 import org.jbehave.eclipse.cache.container.Containers;
-import org.jbehave.eclipse.util.StringDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +26,16 @@ import org.slf4j.LoggerFactory;
  * collecting container.
  */
 public class MethodToStepCandidateReducer {
-    private static Logger log = LoggerFactory
+    private static final Logger log = LoggerFactory
 	    .getLogger(MethodToStepCandidateReducer.class);
+
+    private static final List<String> HANDLED_ANNOTATION_NAMES;
+
+    static {
+	HANDLED_ANNOTATION_NAMES = Arrays.asList(Given.class.getSimpleName(),
+		When.class.getSimpleName(), Then.class.getSimpleName(),
+		Alias.class.getSimpleName(), Aliases.class.getSimpleName());
+    }
 
     /**
      * Constructor
@@ -44,19 +56,29 @@ public class MethodToStepCandidateReducer {
      *             at problems extracting model information
      */
     public void reduce(final IMethod method,
-	    StepCandidateReduceListener listener) throws JavaModelException {
+	    final StepCandidateReduceListener listener)
+	    throws JavaModelException {
 	StepType stepType = null;
-	for (IAnnotation annotation : method.getAnnotations()) {
-	    String elementName = annotation.getElementName();
+	for (final IAnnotation annotation : method.getAnnotations()) {
+	    final String fullQualifiedName = getFullQualifiedName(annotation);
 	    IMemberValuePair[] annotationAttributes = annotation
 		    .getMemberValuePairs();
 	    Integer priority = Integer.valueOf(0);
+	    boolean basicStep = false;
 
 	    List<String> patterns = new ArrayList<String>();
-	    if (StringDecorator.decorate(elementName).endsWithOneOf("Given",
-		    "When", "Then")) {
-		// TODO check import declaration matches org.jbehave...
-		stepType = StepType.valueOf(elementName.toUpperCase());
+	    if (Given.class.getName().equals(fullQualifiedName)) {
+		stepType = StepType.GIVEN;
+		basicStep = true;
+	    } else if (When.class.getName().equals(fullQualifiedName)) {
+		stepType = StepType.WHEN;
+		basicStep = true;
+	    } else if (Then.class.getName().equals(fullQualifiedName)) {
+		stepType = StepType.THEN;
+		basicStep = true;
+	    }
+
+	    if (basicStep) {
 		String stepPattern = JBehaveProject.getValue(
 			annotationAttributes, "value");
 		priority = JBehaveProject.getValue(annotationAttributes,
@@ -65,9 +87,7 @@ public class MethodToStepCandidateReducer {
 		for (String variant : b.allVariants()) {
 		    patterns.add(variant);
 		}
-	    } else if (StringDecorator.decorate(elementName).endsWithOneOf(
-		    "Aliases")) {
-		// TODO check import declaration matches org.jbehave...
+	    } else if (Aliases.class.getName().equals(fullQualifiedName)) {
 		Object aliases = JBehaveProject.getValue(annotationAttributes,
 			"values");
 		if (aliases instanceof Object[]) {
@@ -83,9 +103,7 @@ public class MethodToStepCandidateReducer {
 		    if (!patterns.isEmpty() && stepType == null)
 			stepType = StepType.GIVEN;
 		}
-	    } else if (StringDecorator.decorate(elementName).endsWithOneOf(
-		    "Alias")) {
-		// TODO check import declaration matches org.jbehave...
+	    } else if (Alias.class.getName().equals(fullQualifiedName)) {
 		String stepPattern = JBehaveProject.getValue(
 			annotationAttributes, "value");
 		PatternVariantBuilder b = new PatternVariantBuilder(stepPattern);
@@ -108,5 +126,20 @@ public class MethodToStepCandidateReducer {
 		}
 	    }
 	}
+    }
+
+    private String getFullQualifiedName(IAnnotation annotation) {
+	String elementName = annotation.getElementName();
+	StringBuilder fullQualifiedName = new StringBuilder();
+	boolean isQualified = elementName.indexOf('.') >= 0;
+
+	if (!isQualified
+		&& (HANDLED_ANNOTATION_NAMES.indexOf(elementName) >= 0)) {
+	    // TODO check import declaration matches org.jbehave...
+	    fullQualifiedName.append("org.jbehave.core.annotations.");
+	}
+	fullQualifiedName.append(elementName);
+
+	return fullQualifiedName.toString();
     }
 }

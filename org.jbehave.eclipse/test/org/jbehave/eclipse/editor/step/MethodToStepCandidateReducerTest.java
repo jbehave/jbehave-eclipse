@@ -157,6 +157,18 @@ public class MethodToStepCandidateReducerTest {
 		"a user session exists", 0);
     }
 
+    @Test
+    public void testContainerInformed_WhenAnnotationWithFullQualifiedName()
+	    throws JavaModelException {
+	givenAnnotation("org.jbehave.core.annotations.Given",
+		"a fully qualified annotation");
+
+	whenTheMethodWasProcessed();
+
+	thenListenerShouldHaveBeenInformedOnlyWith(StepType.GIVEN,
+		"a fully qualified annotation", null);
+    }
+
     @Before
     public void setUp() throws Exception {
 	this.reducer = new MethodToStepCandidateReducer();
