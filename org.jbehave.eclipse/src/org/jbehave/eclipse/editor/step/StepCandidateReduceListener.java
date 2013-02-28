@@ -8,7 +8,7 @@ import org.jbehave.core.steps.StepType;
  */
 public interface StepCandidateReduceListener {
     /**
-     * Called for any method/annotation combination that can act as a step
+     * Called for any method/pattern combination that can act as a step
      * candidate.
      * 
      * @param method
