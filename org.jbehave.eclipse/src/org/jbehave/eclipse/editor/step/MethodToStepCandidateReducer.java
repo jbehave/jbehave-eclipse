@@ -25,22 +25,11 @@ public class MethodToStepCandidateReducer {
     private static Logger log = LoggerFactory
 	    .getLogger(MethodToStepCandidateReducer.class);
 
-    private final String parameterPrefix;
-
-    private final LocalizedStepSupport localizedStepSupport;
-
     /**
      * Constructor
-     * 
-     * @param parameterPrefix
-     *            value passed on to created StepCandidates
-     * @param localizedStepSupport
-     *            value passed on to created StepCandidates
      */
-    public MethodToStepCandidateReducer(final String parameterPrefix,
-	    LocalizedStepSupport localizedStepSupport) {
-	this.parameterPrefix = parameterPrefix;
-	this.localizedStepSupport = localizedStepSupport;
+    public MethodToStepCandidateReducer() {
+
     }
 
     /**
@@ -49,13 +38,13 @@ public class MethodToStepCandidateReducer {
      * 
      * @param method
      *            the method to analyze
-     * @param container
-     *            the container to feed
+     * @param listener
+     *            for collecting results
      * @throws JavaModelException
      *             at problems extracting model information
      */
-    public void reduce(final IMethod method, Container<StepCandidate> container)
-	    throws JavaModelException {
+    public void reduce(final IMethod method,
+	    StepCandidateReduceListener listener) throws JavaModelException {
 	StepType stepType = null;
 	for (IAnnotation annotation : method.getAnnotations()) {
 	    String elementName = annotation.getElementName();
@@ -115,14 +104,7 @@ public class MethodToStepCandidateReducer {
 		    if (stepPattern == null) {
 			continue;
 		    }
-		    container.add(new StepCandidate(//
-			    this.localizedStepSupport,//
-			    this.parameterPrefix,//
-			    method, //
-			    annotation, //
-			    stepType, //
-			    stepPattern, //
-			    priority));
+		    listener.add(method, stepType, stepPattern, priority);
 		}
 	    }
 	}

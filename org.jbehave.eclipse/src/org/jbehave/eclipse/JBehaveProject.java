@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
+import org.jbehave.core.steps.StepType;
 import org.jbehave.eclipse.cache.JavaScanner;
 import org.jbehave.eclipse.cache.MethodCache;
 import org.jbehave.eclipse.cache.MethodCache.Callback;
@@ -26,6 +27,7 @@ import org.jbehave.eclipse.cache.container.Container;
 import org.jbehave.eclipse.editor.step.LocalizedStepSupport;
 import org.jbehave.eclipse.editor.step.MethodToStepCandidateReducer;
 import org.jbehave.eclipse.editor.step.StepCandidate;
+import org.jbehave.eclipse.editor.step.StepCandidateReduceListener;
 import org.jbehave.eclipse.editor.step.StepLocator;
 import org.jbehave.eclipse.preferences.ClassScannerPreferences;
 import org.jbehave.eclipse.preferences.ProjectPreferences;
@@ -132,19 +134,33 @@ public class JBehaveProject {
 
     private Callback<IMethod, Container<StepCandidate>> newCallback() {
         return new Callback<IMethod, Container<StepCandidate>>() {
-            public void op(IMethod method, Container<StepCandidate> container) {
+            public void op(IMethod method, final Container<StepCandidate> container) {
+        	StepCandidateReduceListener listener = getStepCandidateReduceListener(container);
                 MethodToStepCandidateReducer reducer =
-            	    new MethodToStepCandidateReducer(parameterPrefix, getLocalizedStepSupport());
+            	    new MethodToStepCandidateReducer();
                 
                 try {
-                    reducer.reduce(method, container);
+                    reducer.reduce(method, listener);
                 } catch (JavaModelException e) {
                     log.error("Failed to add step candidates for method {}", method, e);
                 }
-            };
+            }
         };
     }
 
+    private StepCandidateReduceListener getStepCandidateReduceListener(
+	    final Container<StepCandidate> container) {
+	return new StepCandidateReduceListener() {
+	    
+	    @Override
+	    public void add(IMethod method, StepType stepType, String stepPattern,
+		    Integer priority) {
+		container.add(new StepCandidate(getLocalizedStepSupport(),
+			parameterPrefix, method, stepType, stepPattern, priority));
+	    }
+	};
+    };
+    
     public void notifyChanges(IJavaElementDelta delta) {
         int kind = delta.getKind();
         log.debug("Notifying change within project {}: {} ({})", o(project.getName(), delta, Integer.toBinaryString(kind)));
