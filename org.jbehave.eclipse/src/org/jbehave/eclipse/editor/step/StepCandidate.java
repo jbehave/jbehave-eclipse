@@ -4,12 +4,10 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
 import org.jbehave.core.parsers.RegexPrefixCapturingPatternParser;
 import org.jbehave.core.parsers.StepMatcher;
 import org.jbehave.core.parsers.StepPatternParser;
 import org.jbehave.core.steps.StepType;
-import org.jbehave.eclipse.JBehaveProject;
 
 /**
  * A StepCandidate is associated to a JDT IMethod and IAnnotation that can be
@@ -20,7 +18,6 @@ public class StepCandidate {
 	private final LocalizedStepSupport localizedSupport;
 	private final String parameterPrefix;
 	public final IMethod method;
-	public final IAnnotation annotation;
 	public final StepType stepType;
 	public final String stepPattern;
 	public final Integer priority;
@@ -28,12 +25,11 @@ public class StepCandidate {
 	private StepPatternParser stepParser;
 
 	public StepCandidate(LocalizedStepSupport localizedSupport,
-			String parameterPrefix, IMethod method, IAnnotation annotation,
+			String parameterPrefix, IMethod method,
 			StepType stepType, String stepPattern, Integer priority) {
 		this.localizedSupport = localizedSupport;
 		this.parameterPrefix = parameterPrefix;
 		this.method = method;
-		this.annotation = annotation;
 		this.stepType = stepType;
 		this.stepPattern = stepPattern;
 		this.stepParser = new RegexPrefixCapturingPatternParser(parameterPrefix);
@@ -95,13 +91,8 @@ public class StepCandidate {
 				builder.append("<type-unknown>");
 			builder.append('#').append(method.getElementName());
 
-			try {
-				Integer prio = JBehaveProject.getValue(
-						annotation.getMemberValuePairs(), "priority");
-				if (prio != null && prio.intValue() != 0) {
-					builder.append(", priority ").append(prio);
-				}
-			} catch (JavaModelException e) {
+			if (priority != 0) {
+				builder.append(", priority ").append(priority);
 			}
 		}
 		return builder.toString();
