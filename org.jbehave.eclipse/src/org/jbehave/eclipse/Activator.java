@@ -1,6 +1,7 @@
 package org.jbehave.eclipse;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -22,7 +23,6 @@ import org.jbehave.eclipse.console.JBehaveConsoleAppender;
 import org.jbehave.eclipse.editor.story.completion.StoryContextType;
 import org.jbehave.eclipse.preferences.LoggerEntry;
 import org.jbehave.eclipse.preferences.LoggerPreferences;
-import org.jbehave.eclipse.util.ProcessGroup;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
@@ -257,8 +257,8 @@ public class Activator extends AbstractUIPlugin {
 	        return thr;
 	    }
 	});
-    public <T> ProcessGroup<T> newProcessGroup () {
-        return new ProcessGroup<T>(executor);
+    public Executor getExecutor() {
+        return this.executor;
     }
 	
     public static void logInfo(String message) {

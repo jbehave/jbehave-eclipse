@@ -1,8 +1,7 @@
 package org.jbehave.eclipse.cache;
 
-import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -11,29 +10,27 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.jbehave.eclipse.util.FJ;
-import org.jbehave.eclipse.util.ProcessGroup;
 import org.jbehave.eclipse.util.StringMatcher;
 
 import fj.F;
 
 public class JavaScanner<T> {
     
-    private final IProject project;
+    private final IJavaProject project;
     private final JavaVisitor<T> visitor;
-    private final ProcessGroup<Void> processGroup;
+    private final Executor executor;
     private F<String, Boolean> packageRootNameFilter = FJ.alwaysTrue();
     private F<String, Boolean> packageNameFilter = FJ.alwaysTrue();
     private F<String, Boolean> classNameFilter = FJ.alwaysTrue();
     private byte[] filterHash;
     
-    public JavaScanner(IProject project, JavaVisitor<T> visitor, ProcessGroup<Void> processGroup) {
+    public JavaScanner(IJavaProject project, JavaVisitor<T> visitor, Executor executor) {
         super();
         this.project = project;
         this.visitor = visitor;
-        this.processGroup = processGroup;
+        this.executor = executor;
     }
     
     public void setPackageNameFilter(StringMatcher packageNameMatcher) {
@@ -68,21 +65,22 @@ public class JavaScanner<T> {
 
     
     public void traversePackageFragmentRoots(final T argument) throws JavaModelException {
-        IJavaProject javaProject = (IJavaProject) JavaCore.create(project);
-        for(IPackageFragmentRoot packageFragmentRoot : javaProject.getAllPackageFragmentRoots()) {
-            processGroup.spawn(traverseAsCallable(packageFragmentRoot, argument));
+        for(IPackageFragmentRoot packageFragmentRoot : project.getAllPackageFragmentRoots()) {
+            executor.execute(traverseAsRunnable(packageFragmentRoot, argument));
         }
     }
 
-    private Callable<Void> traverseAsCallable(final IPackageFragmentRoot packageFragmentRoot, final T argument) {
-        return new Callable<Void>() {
+    private Runnable traverseAsRunnable(final IPackageFragmentRoot packageFragmentRoot, final T argument) {
+        return new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 if(packageRootNameFilter.f(packageFragmentRoot.getElementName())
                     && visitor.visit(packageFragmentRoot, argument)) {
-                    traverse(packageFragmentRoot, argument);
+                    try {
+			traverse(packageFragmentRoot, argument);
+		    } catch (JavaModelException e) {
+		    }
                 }
-                return null;
             }
         };
     }
@@ -93,20 +91,22 @@ public class JavaScanner<T> {
         for(IJavaElement elem : packageFragmentRoot.getChildren()) {
             final IJavaElement jElem = elem;
             if(jElem.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
-                processGroup.spawn(traverseAsCallable((IPackageFragment)jElem, arg));
+                executor.execute(traverseAsRunnable((IPackageFragment)jElem, arg));
             }
         }
     }
 
-    private Callable<Void> traverseAsCallable(final IPackageFragment packageFragment, final T arg) {
-        return new Callable<Void>() {
+    private Runnable traverseAsRunnable(final IPackageFragment packageFragment, final T arg) {
+        return new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 if(packageNameFilter.f(packageFragment.getElementName())
                    && visitor.visit(packageFragment, arg)) {
-                    traverse(packageFragment, arg);
+                    try {
+			traverse(packageFragment, arg);
+		    } catch (JavaModelException e) {
+		    }
                 }
-                return null;
             }
         };
     }
@@ -123,14 +123,14 @@ public class JavaScanner<T> {
                         break;
                     
                     ICompilationUnit cunit = (ICompilationUnit)jElem;
-                    processGroup.spawn(traverseAsCallable(cunit, arg));
+                    executor.execute(traverseAsRunnable(cunit, arg));
                     break;
                 case IJavaElement.CLASS_FILE:
                     if(!traverseClassFile)
                         break;
                     
                     IClassFile classFile = (IClassFile)jElem;
-                    processGroup.spawn(traverseAsCallable(classFile, arg));
+                    executor.execute(traverseAsRunnable(classFile, arg));
                     break;
                 default:
                     visitor.visit(jElem, arg);
@@ -138,28 +138,32 @@ public class JavaScanner<T> {
         }
     }
 
-    private Callable<Void> traverseAsCallable(final IClassFile classFile, final T arg) {
-        return new Callable<Void>() {
+    private Runnable traverseAsRunnable(final IClassFile classFile, final T arg) {
+        return new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run(){
                 if(classNameFilter.f(classFile.getElementName())
                    && visitor.visit(classFile, arg)) {
-                    traverse(classFile, arg);
+                    try {
+			traverse(classFile, arg);
+		    } catch (JavaModelException e) {
+		    }
                 }
-                return null;
             }
         };
     }
 
-    private Callable<Void> traverseAsCallable(final ICompilationUnit cunit, final T arg) {
-        return new Callable<Void>() {
+    private Runnable traverseAsRunnable(final ICompilationUnit cunit, final T arg) {
+        return new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 if(classNameFilter.f(cunit.getElementName())
                    && visitor.visit(cunit, arg)) {
-                    traverse(cunit, arg);
+                    try {
+			traverse(cunit, arg);
+		    } catch (JavaModelException e) {
+		    }
                 }
-                return null;
             }
         };
     }

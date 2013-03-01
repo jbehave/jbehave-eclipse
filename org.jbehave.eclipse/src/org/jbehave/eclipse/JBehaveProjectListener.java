@@ -1,8 +1,9 @@
 package org.jbehave.eclipse;
 
-public class JBehaveProjectListener {
-
-    public void stepsInvalidated() {
-    }
+public interface JBehaveProjectListener {
+    /**
+     * Called when the list of known steps has changed. 
+     */
+    void stepsUpdated();
 
 }

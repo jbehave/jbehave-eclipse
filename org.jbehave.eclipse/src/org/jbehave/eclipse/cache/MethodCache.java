@@ -2,21 +2,21 @@ package org.jbehave.eclipse.cache;
 
 import static org.jbehave.eclipse.util.Bytes.areDifferents;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.jbehave.eclipse.cache.container.Container;
 import org.jbehave.eclipse.cache.container.HierarchicalContainer;
-import org.jbehave.eclipse.util.ProcessGroup;
 import org.jbehave.eclipse.util.Visitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +42,11 @@ public class MethodCache<E> extends
         this.callback = callback;
     }
 
-    public void rebuild(IProject project, 
+    public void rebuild(IJavaProject project, 
                         Effect<JavaScanner<?>> initializer,
-                        ProcessGroup<Void> group) throws JavaModelException {
+                        Executor executor) throws JavaModelException {
         
-        JavaScanner<Bucket<E>> javaScanner = new JavaScanner<Bucket<E>>(project, this, group);
+        JavaScanner<Bucket<E>> javaScanner = new JavaScanner<Bucket<E>>(project, this, executor);
         initializer.e(javaScanner);
         
         int buildTick = buildTickGenerator.incrementAndGet();
