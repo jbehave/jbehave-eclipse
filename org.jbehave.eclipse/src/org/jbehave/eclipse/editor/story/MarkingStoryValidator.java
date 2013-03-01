@@ -76,13 +76,13 @@ public class MarkingStoryValidator {
         
         Activator.logInfo(MarkingStoryValidator.class.getSimpleName()+": Validating parts " + parts);
         
-        MonitoredExecutor group = new MonitoredExecutor(Activator.getDefault().getExecutor());
-        group.execute(checkStepsAsRunnable(parts));
-        group.execute(checkNarrativeAsRunnable(parts));
+        MonitoredExecutor executor = new MonitoredExecutor(Activator.getDefault().getExecutor());
+        executor.execute(checkStepsAsRunnable(parts));
+        executor.execute(checkNarrativeAsRunnable(parts));
 
         try {
             Activator.logInfo(MarkingStoryValidator.class.getSimpleName()+": Awaiting termination of validation");
-            group.awaitCompletion();
+            executor.awaitCompletion();
         } catch (InterruptedException e) {
             Activator.logError(MarkingStoryValidator.class.getSimpleName()+": Error while validating parts: " + parts, e);
         }

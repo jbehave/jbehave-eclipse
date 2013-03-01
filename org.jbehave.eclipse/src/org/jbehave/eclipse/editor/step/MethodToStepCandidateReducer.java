@@ -15,7 +15,6 @@ import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
 import org.jbehave.core.steps.PatternVariantBuilder;
 import org.jbehave.core.steps.StepType;
-import org.jbehave.eclipse.JBehaveProject;
 import org.jbehave.eclipse.cache.container.Containers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,15 +81,12 @@ public class MethodToStepCandidateReducer {
 	    }
 
 	    if (basicStep) {
-		String stepPattern = JBehaveProject.getValue(
-			annotationAttributes, "value");
-		priority = JBehaveProject.getValue(annotationAttributes,
-			"priority");
+		String stepPattern = getValue(annotationAttributes, "value");
+		priority = getValue(annotationAttributes, "priority");
 
 		patterns = extractPatternVariants(patterns, stepPattern);
 	    } else if (Aliases.class.getName().equals(fullQualifiedName)) {
-		Object aliases = JBehaveProject.getValue(annotationAttributes,
-			"values");
+		Object aliases = getValue(annotationAttributes, "values");
 		if (aliases instanceof Object[]) {
 		    for (Object o : (Object[]) aliases) {
 			if (o instanceof String) {
@@ -100,8 +96,7 @@ public class MethodToStepCandidateReducer {
 		    }
 		}
 	    } else if (Alias.class.getName().equals(fullQualifiedName)) {
-		String stepPattern = JBehaveProject.getValue(
-			annotationAttributes, "value");
+		String stepPattern = getValue(annotationAttributes, "value");
 
 		patterns = extractPatternVariants(patterns, stepPattern);
 	    }
@@ -140,5 +135,14 @@ public class MethodToStepCandidateReducer {
 	}
 
 	return patterns;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getValue(IMemberValuePair[] memberValuePairs, String key) {
+	for (IMemberValuePair kv : memberValuePairs) {
+	    if (kv.getMemberName().equalsIgnoreCase(key))
+		return (T) kv.getValue();
+	}
+	return null;
     }
 }

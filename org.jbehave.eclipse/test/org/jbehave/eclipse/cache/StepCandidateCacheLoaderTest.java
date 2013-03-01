@@ -25,10 +25,11 @@ import fj.Effect;
 public class StepCandidateCacheLoaderTest {
 
     /**
-     * A gate is a thread notifier that holds its signaled state for later
-     * checks. It starts 'closed' and can be set to be 'opened'.
+     * A checkpoint is a thread notifier that holds its signaled state for later
+     * checks. It starts in the non-signaled state and can only be once in this
+     * state.
      */
-    private static class Gate {
+    private static class Checkpoint {
 	private final Object signal = new Object();
 
 	private final AtomicBoolean signalSet = new AtomicBoolean(false);
@@ -66,9 +67,9 @@ public class StepCandidateCacheLoaderTest {
     private static class RiggedExecutor implements Executor {
 	private final AtomicBoolean directExecution = new AtomicBoolean(true);
 
-	private final Gate completeThreadExecution = new Gate();
+	private final Checkpoint completeThreadExecution = new Checkpoint();
 
-	private final Gate threadExecutionStopped = new Gate();
+	private final Checkpoint threadExecutionStopped = new Checkpoint();
 
 	private final Executor executor = Executors.newSingleThreadExecutor();
 
@@ -285,7 +286,9 @@ public class StepCandidateCacheLoaderTest {
 
     @SuppressWarnings("unchecked")
     public void thenCachesShouldHaveBeenNotifiedInOrder(
-	    MethodCache<StepCandidate> expectedA, MethodCache<StepCandidate> expectedB) {
-	Assert.assertEquals(Arrays.asList(expectedA, expectedB), this.notifiedCaches);
+	    MethodCache<StepCandidate> expectedA,
+	    MethodCache<StepCandidate> expectedB) {
+	Assert.assertEquals(Arrays.asList(expectedA, expectedB),
+		this.notifiedCaches);
     }
 }

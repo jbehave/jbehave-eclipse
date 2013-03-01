@@ -3,7 +3,6 @@ package org.jbehave.eclipse.cache;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.jbehave.eclipse.editor.step.StepCandidate;

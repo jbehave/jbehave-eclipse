@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChang
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -241,32 +240,14 @@ public class JBehaveProject implements StepCandidateCacheListener {
     @Override
     public void cacheLoaded(MethodCache<StepCandidate> cache) {
 	this.cache = cache;
-	
-        Job job = new Job("JBehave steps cache updated") {
-            @Override
-            protected IStatus run(IProgressMonitor monitor) {
-                for(JBehaveProjectListener listener : listeners) {
-                    try {
-                        listener.stepsUpdated();
-                    } catch (Exception e) {
-                        log.error("Error during step invalidation notification: {}", listener, e);
-                    }
-                }
-                return Status.OK_STATUS;
-            }
-        };
-        job.setUser(false);
-        job.setSystem(true);
-        job.schedule();
-    }
 
-    @SuppressWarnings("unchecked")
-    public static <T> T getValue(IMemberValuePair[] memberValuePairs, String key) {
-        for (IMemberValuePair kv : memberValuePairs) {
-            if (kv.getMemberName().equalsIgnoreCase(key))
-                return (T) kv.getValue();
-        }
-        return null;
+	for (JBehaveProjectListener listener : listeners) {
+	    try {
+		listener.stepsUpdated();
+	    } catch (Exception e) {
+		log.error("Error during step invalidation notification: {}",
+			listener, e);
+	    }
+	}
     }
-
 }
