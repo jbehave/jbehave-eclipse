@@ -172,7 +172,7 @@ public class StoryEditor extends TextEditor {
         else
             projectListener = new JBehaveProjectListener() {
                 @Override
-                public void stepsInvalidated() {
+                public void stepsUpdated() {
                     validateAndMark();
                     invalidateTextPresentation();
                 }
