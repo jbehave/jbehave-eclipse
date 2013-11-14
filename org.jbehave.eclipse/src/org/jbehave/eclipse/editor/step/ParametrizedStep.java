@@ -12,7 +12,7 @@ import fj.F;
 public class ParametrizedStep {
     
     private static Pattern compileParameterPattern(String parameterPrefix) {
-        return Pattern.compile("(\\" + parameterPrefix + "\\w*)(\\W|\\Z)", Pattern.DOTALL);
+        return Pattern.compile("(\\" + parameterPrefix + "\\p{L}*)(\\W|\\Z)", Pattern.DOTALL);
     }
     
     private List<Token> tokens = new ArrayList<Token>();
