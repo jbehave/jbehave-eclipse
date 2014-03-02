@@ -25,7 +25,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <eclipse.release>juno</eclipse.release>
+    <eclipse.release>kepler</eclipse.release>
     <tycho.version>0.15.0</tycho.version>
     <tycho.test.jvmArgs></tycho.test.jvmArgs>
   </properties>
@@ -147,10 +147,16 @@
 
   <profiles>
     <profile>
-      <id>juno</id>
+      <id>kepler</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
+      <properties>
+        <eclipse.release>kepler</eclipse.release>
+      </properties>
+    </profile>
+    <profile>
+      <id>juno</id>
       <properties>
         <eclipse.release>juno</eclipse.release>
       </properties>
