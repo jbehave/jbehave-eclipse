@@ -126,6 +126,7 @@ public class MarkingStoryValidator {
         Part inOrderTo = null;
         Part asA = null;
         Part iWantTo = null;
+        Part soThat = null;
         
         Iterator<Part> iterator = parts.iterator();
         while(iterator.hasNext()) {
@@ -158,8 +159,6 @@ public class MarkingStoryValidator {
                         case AsA:
                             if(narrative==null)
                                 part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingNarrative, "Missing 'Narrative:' element");
-                            else if(inOrderTo==null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingInOrderTo, "Missing 'In order to' element");
                             else if(asA!=null)
                                 part.addErrorMark(Marks.Code.InvalidNarrativeSequence_multipleAsA, "Only one 'As a' element is allowed");
                             else
@@ -168,14 +167,24 @@ public class MarkingStoryValidator {
                         case IWantTo:
                             if(narrative==null)
                                 part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingNarrative, "Missing 'Narrative:' element");
-                            else if(inOrderTo==null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingInOrderTo, "Missing 'In order to' element");
                             else if(asA==null)
                                 part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingAsA, "Missing 'As a' element");
                             else if(iWantTo!=null)
                                 part.addErrorMark(Marks.Code.InvalidNarrativeSequence_multipleIWantTo, "Only one 'I want to' element is allowed");
                             else
                                 iWantTo = part;
+                            break;
+                        case SoThat:
+                            if(narrative==null)
+                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingNarrative, "Missing 'Narrative:' element");
+                            else if(asA==null)
+                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingAsA, "Missing 'As a' element");
+                            else if(iWantTo==null)
+                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingIWantTo, "Missing 'I want to' element");
+                            else if(soThat!=null)
+                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_multipleSoThat, "Only one 'So that' element is allowed");
+                            else
+                                soThat = part;
                             break;
 					default:
 						break;
@@ -201,9 +210,15 @@ public class MarkingStoryValidator {
                 else {
                     inOrderTo.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingAsA, "Missing 'As a' element");
                 }
-            }
-            else {
-                narrative.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingInOrderTo, "Missing 'In order to' element");
+            } else if (soThat!=null){
+                if(asA!=null) {
+                    if(iWantTo==null) {
+                      asA.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingIWantTo, "Missing 'I want to' element");
+                    }
+                }
+                else {
+                	soThat.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingAsA, "Missing 'As a' element");
+                }
             }
         }
         

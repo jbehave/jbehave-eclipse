@@ -82,6 +82,10 @@ public class LocalizedStepSupport {
 		return plusSpace(getLocalizedKeywords().iWantTo(), withTrailingSpace);
 	}
 
+	public String soThat(boolean withTrailingSpace) {
+		return plusSpace(getLocalizedKeywords().soThat(), withTrailingSpace);
+	}
+
 	public String meta(boolean withTrailingSpace) {
 		return plusSpace(getLocalizedKeywords().meta(), withTrailingSpace);
 	}

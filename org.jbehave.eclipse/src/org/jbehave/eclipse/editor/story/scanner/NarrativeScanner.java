@@ -39,7 +39,8 @@ public class NarrativeScanner extends StoryTokenScanner {
         if(handleKeyword(element, localizedStepSupport.narrative(false)) //
                 || handleKeyword(element, localizedStepSupport.asA(false)) //
                 || handleKeyword(element, localizedStepSupport.inOrderTo(false)) //
-                || handleKeyword(element, localizedStepSupport.iWantTo(false))) {
+                || handleKeyword(element, localizedStepSupport.iWantTo(false))
+                || handleKeyword(element, localizedStepSupport.soThat(false))) {
             // done!
         }
         else {

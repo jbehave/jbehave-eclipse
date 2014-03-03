@@ -47,6 +47,26 @@ public class VisitingStoryParserTest {
     }
 
     @Test
+    public void parse_case1A() throws IOException {
+        String story = "/data/UseCaseEx01A.story";
+		String storyAsText = readToString(story);
+
+        String[] expected = {
+                "offset: 0, length: 11, content: >>Narrative:\n<<", //
+                "offset: 11, length: 18, content: >>As a story writer\n<<", //
+                "offset: 29, length: 108, content: >>I want to explain the use of And steps and also show that I can use keywords in scenario title and comments\n<<", //
+                "offset: 137, length: 37, content: >>So that I can be more communicative\n\n<<", //
+                "offset: 174, length: 57, content: >>Scenario: And steps should match the previous step type\n\n<<", //
+                "offset: 231, length: 20, content: >>Given a 5 by 5 game\n<<", //
+                "offset: 251, length: 33, content: >>When I toggle the cell at (2, 3)\n<<", //
+                "offset: 284, length: 61, content: >>Then the grid should look like\n.....\n.....\n.....\n..X..\n.....\n<<", //
+                "offset: 345, length: 33, content: >>When I toggle the cell at (2, 4)\n<<", //
+                "offset: 378, length: 61, content: >>Then the grid should look like\n.....\n.....\n.....\n..X..\n..X..\n<<" };
+
+        assertElements(expected, parser.parse(storyAsText));
+    }
+
+    @Test
     public void parse_case2() throws Exception {
         String storyAsText = "Given a user named Bob\n" + "When user credits is 12 dollars";
         String[] expected = { "offset: 0, length: 23, content: >>Given a user named Bob\n<<", //

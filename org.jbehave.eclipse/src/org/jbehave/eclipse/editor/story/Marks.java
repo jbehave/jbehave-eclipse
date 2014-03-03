@@ -21,10 +21,12 @@ public class Marks {
         InvalidNarrativeSequence_multipleInOrderTo(5),    
         InvalidNarrativeSequence_multipleAsA(6),
         InvalidNarrativeSequence_multipleIWantTo(7),
-        InvalidNarrativeSequence_missingNarrative(8),
-        InvalidNarrativeSequence_missingInOrderTo(9),
-        InvalidNarrativeSequence_missingAsA(10),
-        InvalidNarrativeSequence_missingIWantTo(11);
+        InvalidNarrativeSequence_multipleSoThat(8),        
+        InvalidNarrativeSequence_missingNarrative(9),
+        InvalidNarrativeSequence_missingInOrderTo(10),
+        InvalidNarrativeSequence_missingAsA(11),
+        InvalidNarrativeSequence_missingIWantTo(12),
+        InvalidNarrativeSequence_missingSoThat(13);
         
         private final int legacyCode;
         private Code(int legacyCode) {

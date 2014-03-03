@@ -103,6 +103,7 @@ public class AllInOneScanner extends StoryTokenScanner {
             case AsA:
             case InOrderTo:
             case IWantTo:
+            case SoThat:
                 emit(narrativeScanner, element);
                 break;
             case GivenStories:

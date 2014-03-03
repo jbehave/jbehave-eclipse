@@ -41,6 +41,12 @@ public enum Keyword {
             return keywords.iWantTo();
         }
     },
+    SoThat {
+        @Override
+        public String asString(Keywords keywords) {
+            return keywords.soThat();
+        }
+    },
     Scenario {
         @Override
         public String asString(Keywords keywords) {
