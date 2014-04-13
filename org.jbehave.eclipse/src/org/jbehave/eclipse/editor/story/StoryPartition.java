@@ -47,6 +47,7 @@ public enum StoryPartition {
             case AsA:
             case InOrderTo:
             case IWantTo:
+    		case SoThat:
                 return Narrative;
             case Scenario:
                 return Scenario;
@@ -54,6 +55,8 @@ public enum StoryPartition {
             case Meta: 
             case MetaProperty:
                 return Meta;
+		default:
+			break;
         }
         return Undefined;
     }

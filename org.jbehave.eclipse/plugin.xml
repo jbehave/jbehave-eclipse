@@ -35,17 +35,20 @@
    <extension
        point="org.eclipse.ui.commands">
       <command
+            id="org.jbehave.eclipse.actions.format-table"
+            name="Format Table"/>
+      <command
             id="org.jbehave.eclipse.actions.show-outline"
-            name="Show outline"/>
+            name="Show Outline"/>
       <command
             id="org.jbehave.eclipse.actions.quick-search"
-            name="Quicl Search"/>
+            name="Quick Search"/>
       <command
             id="org.jbehave.eclipse.actions.jump-to-declaration"
-            name="Jump to declaration"/>
+            name="Jump To Declaration"/>
       <command
             id="org.jbehave.eclipse.actions.toggle-comment"
-            name="Toggle comment"/>
+            name="Toggle Comment"/>
    </extension>
    
    <extension
@@ -60,6 +63,11 @@
        point="org.eclipse.ui.bindings">
        <!--  win32:  M1=CTRL,    M2=SHIFT, M3=ALT, M4=-
             carbon: M1=COMMAND, M2=SHIFT, M3=ALT, M4=CTRL -->
+      <key
+            commandId="org.jbehave.eclipse.actions.format-table"
+            contextId="org.jbehave.eclipse.storyEditorScope"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+F"/>
       <key
             commandId="org.jbehave.eclipse.actions.show-outline"
             contextId="org.jbehave.eclipse.storyEditorScope"

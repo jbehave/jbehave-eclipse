@@ -7,6 +7,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.BadLocationException;
@@ -34,6 +36,7 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
+import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.SourceViewerDecorationSupport;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.jbehave.eclipse.Activator;
@@ -45,6 +48,7 @@ import org.jbehave.eclipse.editor.EditorMessages;
 import org.jbehave.eclipse.editor.step.LocalizedStepSupport;
 import org.jbehave.eclipse.editor.step.StepCandidate;
 import org.jbehave.eclipse.editor.step.StepJumper;
+import org.jbehave.eclipse.editor.story.actions.FormatTableAction;
 import org.jbehave.eclipse.editor.story.actions.JumpToDeclarationAction;
 import org.jbehave.eclipse.editor.story.actions.QuickSearchAction;
 import org.jbehave.eclipse.editor.story.actions.ShowOutlineAction;
@@ -71,6 +75,7 @@ public class StoryEditor extends TextEditor {
 
     private ColorManager colorManager;
     //
+	private FormatTableAction formatTable;
     private ShowOutlineAction showOutline;
     private JumpToDeclarationAction jumpToDeclaration;
     private QuickSearchAction quickSearch;
@@ -236,28 +241,48 @@ public class StoryEditor extends TextEditor {
         super.createActions();
         ResourceBundle bundle = EditorMessages.getBundleForConstructedKeys();
 
+        formatTable = new FormatTableAction(bundle, "FormatTable.", this);
+        formatTable.setActionDefinitionId(EditorActionDefinitionIds.FORMAT_TABLE);
+        setAction("FormatTable", formatTable);
+        markAsContentDependentAction(EditorActionDefinitionIds.FORMAT_TABLE, true);
+        
         showOutline = new ShowOutlineAction(bundle, "ShowOutline.", this);
         showOutline.setActionDefinitionId(EditorActionDefinitionIds.SHOW_OUTLINE);
-        setAction(EditorActionDefinitionIds.SHOW_OUTLINE, showOutline);
+        setAction("ShowOutline", showOutline);
         markAsContentDependentAction(EditorActionDefinitionIds.SHOW_OUTLINE, true);
 
         quickSearch = new QuickSearchAction(bundle, "QuickSearch.", this);
         quickSearch.setActionDefinitionId(EditorActionDefinitionIds.QUICK_SEARCH);
-        setAction(EditorActionDefinitionIds.QUICK_SEARCH, quickSearch);
+        setAction("QuickSearch", quickSearch);
         markAsContentDependentAction(EditorActionDefinitionIds.QUICK_SEARCH, true);
 
         jumpToDeclaration = new JumpToDeclarationAction(bundle, "JumpToDeclaration.", this);
         jumpToDeclaration.setActionDefinitionId(EditorActionDefinitionIds.JUMP_TO_DECLARATION);
-        setAction(EditorActionDefinitionIds.JUMP_TO_DECLARATION, jumpToDeclaration);
+        setAction("JumpToDeclaration", jumpToDeclaration);
         markAsContentDependentAction(EditorActionDefinitionIds.JUMP_TO_DECLARATION, true);
 
         toggleComment = new ToggleCommentAction(bundle, "ToggleComment.", this);
         toggleComment.setActionDefinitionId(EditorActionDefinitionIds.TOGGLE_COMMENT);
-        setAction(EditorActionDefinitionIds.TOGGLE_COMMENT, toggleComment);
+        setAction("ToggleComment", toggleComment);
         markAsContentDependentAction(EditorActionDefinitionIds.JUMP_TO_DECLARATION, true);
 
     }
 
+    public void editorContextMenuAboutToShow(MenuManager menu) {
+		super.editorContextMenuAboutToShow(menu);
+		addAction(menu, "FormatTable");
+		addAction(menu, "ToggleComment");
+	}
+    
+	protected void editorContextMenuAboutToShow(IMenuManager menu) {
+		super.editorContextMenuAboutToShow(menu);
+		System.out.println(">>> Editable "+isEditable());
+		if (isEditable()) {
+			addAction(menu, ITextEditorActionConstants.GROUP_EDIT, EditorActionDefinitionIds.FORMAT_TABLE);
+			addAction(menu, ITextEditorActionConstants.GROUP_EDIT, EditorActionDefinitionIds.TOGGLE_COMMENT);
+		}
+	}    
+	
     public Iterable<StepCandidate> getStepCandidates() {
         Visitor<StepCandidate, StepCandidate> collector = new Visitor<StepCandidate, StepCandidate>() {
             @Override
