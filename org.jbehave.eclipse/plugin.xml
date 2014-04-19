@@ -220,8 +220,8 @@
           </separator>
        </menu>
        <action
-             class="org.jbehave.eclipse.actions.CreateGenerateStepsWizardAction"
-             id="org.jbehave.eclipse.action1"
+             class="org.jbehave.eclipse.actions.GenerateStepsAction"
+             id="org.jbehave.eclipse.actions.GenerateSteps"
              label="Generate Steps"
              menubarPath="org.jbehave.eclipse.menu/Generators">
        </action>
