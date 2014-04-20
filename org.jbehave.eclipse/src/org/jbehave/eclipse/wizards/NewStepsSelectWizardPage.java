@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -25,7 +27,7 @@ import org.jbehave.eclipse.parser.StoryElement;
 public class NewStepsSelectWizardPage extends WizardPage {
 
 	private IStructuredSelection selection;
-	private List<String> selectedSteps = new ArrayList<String>();
+	private List<NewStep> selectedSteps = new ArrayList<NewStep>();
 
 	public NewStepsSelectWizardPage(IStructuredSelection selection) {
 		super(WizardsMessages.GenerateStepsPageName);
@@ -34,7 +36,7 @@ public class NewStepsSelectWizardPage extends WizardPage {
 		this.selection = selection;
 	}
 
-	public List<String> getSelectedSteps() {		
+	public List<NewStep> getSelectedSteps() {
 		return selectedSteps;
 	}
 
@@ -48,26 +50,27 @@ public class NewStepsSelectWizardPage extends WizardPage {
 		Tree tree = new Tree(composite, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL
 				| SWT.H_SCROLL);
 		tree.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		for (String step : steps()) {
+		for (NewStep step : steps()) {
 			TreeItem item = new TreeItem(tree, SWT.NONE);
-			item.setText(step);
+			item.setData(step);
+			item.setText(step.asString());
 			item.setChecked(false);
 		}
 		tree.setSize(100, 100);
 		tree.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String step = ((TreeItem)e.item).getText();
+				NewStep step = (NewStep) ((TreeItem) e.item).getData();
 				selectedSteps.add(step);
-			}			
+			}
 		});
 
 		// set the composite as the control for this page
 		setControl(composite);
 	}
 
-	private List<String> steps() {
-		List<String> steps = new ArrayList<String>();
+	private List<NewStep> steps() {
+		List<NewStep> steps = new ArrayList<NewStep>();
 		if (this.selection.getFirstElement() instanceof IFile) {
 			IFile file = (IFile) this.selection.getFirstElement();
 			JBehaveProject project = JBehaveProjectRegistry.get()
@@ -77,8 +80,7 @@ public class NewStepsSelectWizardPage extends WizardPage {
 					project.getLocalizedStepSupport());
 			for (StoryElement element : util.getStoryElements(document)) {
 				if (element.isStep()) {
-					steps.add(element.getPreferredKeyword() + " "
-							+ element.stepWithoutKeywordAndTrailingNewlines());
+					steps.add(new NewStep(element));
 				}
 			}
 		}
@@ -91,5 +93,48 @@ public class NewStepsSelectWizardPage extends WizardPage {
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to get content of " + file, e);
 		}
+	}
+
+	public static class NewStep {
+		private StoryElement element;
+
+		public NewStep(StoryElement element) {
+			this.element = element;
+		}
+
+		public String asString() {
+			return element.getPreferredKeyword() + " "
+					+ pattern();
+		}
+
+		public String generateMethod() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("\t@" + element.getPreferredKeyword() + "(\"" 
+					+ pattern() + "\")\n");
+			builder.append("\t@Pending\n");
+			builder.append("\tpublic void " + methodName() + "(){\n");
+			builder.append("\t\t //TODO \n");
+			builder.append("\t}\n");
+			return builder.toString();
+		}
+
+		private String pattern() {
+			return element.stepWithoutKeyword().replace("\n", "");
+		}
+
+		private String methodName() {
+			String name = WordUtils.capitalize(asString());
+			char filteredName[] = new char[name.length()];
+			int index = 0;
+			for (int i = 0; i < name.length(); i++) {
+				char ch = name.charAt(i);
+				if (Character.isJavaIdentifierPart(ch) && ch != '$'
+						&& ch != 127) {
+					filteredName[index++] = ch;
+				}
+			}
+			return StringUtils.uncapitalize(new String(filteredName, 0, index));
+		}
+
 	}
 }

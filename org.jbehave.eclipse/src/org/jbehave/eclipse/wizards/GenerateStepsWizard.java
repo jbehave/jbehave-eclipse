@@ -11,6 +11,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
+import org.jbehave.eclipse.wizards.NewStepsSelectWizardPage.NewStep;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,7 @@ public class GenerateStepsWizard extends Wizard implements INewWizard {
 
 	public boolean performFinish() {
 		boolean performedOK = false;
-		List<String> selectedSteps = selectPage.getSelectedSteps();
+		List<NewStep> selectedSteps = selectPage.getSelectedSteps();
 		if (!selectedSteps.isEmpty()) {
 			createPage.useSteps(selectedSteps);
 			IFile file = createPage.createNewFile();
