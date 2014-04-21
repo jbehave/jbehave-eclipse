@@ -7,9 +7,9 @@ import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.PartInitException;
+import org.jbehave.eclipse.Dialogs;
 import org.jbehave.eclipse.JBehaveProject;
 import org.jbehave.eclipse.JBehaveProjectRegistry;
-import org.jbehave.eclipse.Dialogs;
 import org.jbehave.eclipse.editor.EditorUtils;
 import org.jbehave.eclipse.editor.story.StoryDocumentUtils;
 import org.jbehave.eclipse.parser.RegexUtils;
@@ -25,7 +25,7 @@ public class StepJumper {
 		this.jbehaveProject = jbehaveProject;
 	}
 
-	public boolean jumpToSelectionDeclaration(final ITextViewer viewer)
+	public boolean jumpToSelectedMethod(final ITextViewer viewer)
 			throws JavaModelException, PartInitException {
 
 		Point point = viewer.getSelectedRange();
@@ -38,47 +38,49 @@ public class StepJumper {
 		}
 
 		final StoryElement element = found.get();
-		if (!element.isStep()){
+		if (!element.isStep()) {
 			return false;
 		}
-		
-		return jumpToDeclaration(viewer, element.stepWithoutKeywordAndTrailingNewlines());
+
+		return jumpToMethod(viewer, element);
 	}
 
-	public boolean jumpToDeclaration(final ITextViewer viewer, final String step)
-			throws JavaModelException, PartInitException {
-		// configure search
+	public boolean jumpToMethod(final ITextViewer viewer,
+			final StoryElement element) throws JavaModelException,
+			PartInitException {
+		// find project
 		IProject project = EditorUtils.findProject(viewer);
 		if (project == null) {
 			Dialogs.information("Step not found", "No project found.");
 			return false;
 		}
 
-		// step can contain comment, make sure there are removed:
-		String cleanedStep = RegexUtils.removeComment(step);
-		// comment removed: there can be trailing new lines...
-		cleanedStep = Strings.removeTrailingNewlines(cleanedStep);
+		// step can contain comment and trailing new lines...
+		String stepWithoutKeywordCommentOrTrailingLines = RegexUtils
+				.removeComment(element.stepWithoutKeywordAndTrailingNewlines());
+		stepWithoutKeywordCommentOrTrailingLines = Strings
+				.removeTrailingNewlines(stepWithoutKeywordCommentOrTrailingLines);
 
 		JBehaveProject jbehaveProject = JBehaveProjectRegistry.get()
 				.getOrCreateProject(project);
 		IJavaElement method = jbehaveProject.getStepLocator().findMethod(
-				cleanedStep);
-		// jump to method
+				stepWithoutKeywordCommentOrTrailingLines);
+		// Open method in editor, if found
 		if (method != null) {
 			JavaUI.openInEditor(method);
 			return true;
 		} else {
-			Dialogs.information("Step not found", "There is no step matching:\n"
-					+ step);
+			Dialogs.information("Step not found",
+					"There is no step matching:\n" + element.getContent());
 			return false;
 		}
 	}
 
-	public boolean jumpToMethod(String qualifiedName) throws PartInitException,
-			JavaModelException {
+	public boolean jumpToMethod(final String qualifiedName)
+			throws PartInitException, JavaModelException {
 		IJavaElement method = jbehaveProject.getStepLocator()
 				.findMethodByQualifiedName(qualifiedName);
-		// jump to method
+		// Open method in editor, if found
 		if (method != null) {
 			JavaUI.openInEditor(method);
 			return true;

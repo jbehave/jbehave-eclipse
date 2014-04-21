@@ -29,17 +29,21 @@ public class StoryElement {
 		return content.length();
 	}
 
-	public String getContentWithoutComment() {
-		return RegexUtils.removeComment(content);
-	}
-
 	public String getContent() {
 		return content;
 	}
 
+	public String getContentWithoutComment() {
+		return RegexUtils.removeComment(content);
+	}
+	
+	public String getContentWithoutTrailingComment(){
+		return RegexUtils.removeTrailingComment(content);
+	}
+
 	public String stepWithoutKeyword() {
 		return StepSupport.stepWithoutKeyword(localizedStepSupport,
-				getContent());
+				content);
 	}
 
 	/**
@@ -47,11 +51,11 @@ public class StoryElement {
 	 */
 	public String stepWithoutKeywordAndTrailingNewlines() {
 		return StepSupport.stepWithoutKeywordAndTrailingNewlines(
-				localizedStepSupport, getContent());
+				localizedStepSupport, content);
 	}
 
 	/**
-	 * @see #extractKeyword(CharTree<Keyword>)
+	 * @see #getPreferredKeyword(CharTree<Keyword>)
 	 */
 	public Keyword getPreferredKeyword() {
 		return getPreferredKeyword(defaultTree());
@@ -73,7 +77,7 @@ public class StoryElement {
 	}
 
 	public Keyword extractKeyword(CharTree<Keyword> tree) {
-		return tree.lookup(getContent());
+		return tree.lookup(content);
 	}
 
 	public boolean startsWithKeyword() {

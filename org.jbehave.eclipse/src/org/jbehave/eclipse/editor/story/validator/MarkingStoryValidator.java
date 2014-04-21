@@ -57,35 +57,34 @@ public class MarkingStoryValidator extends AbstractStoryValidator {
         }
     }
 
-    protected void analyze(final List<StoryElement> storyElements, final Runnable afterApplyCallback) {
-        final fj.data.List<Part> parts = iterableList(storyElements).map(new F<StoryElement,Part>() {
+    protected void validate(final List<StoryElement> storyElements) {
+        final fj.data.List<ValidatingPart> parts = iterableList(storyElements).map(new F<StoryElement,ValidatingPart>() {
             @Override
-            public Part f(StoryElement storyElement) {
-                return new Part(storyElement);
+            public ValidatingPart f(StoryElement storyElement) {
+                return new ValidatingPart(storyElement);
             }
         });
         
-        Activator.logInfo(MarkingStoryValidator.class.getSimpleName()+": Validating parts " + parts);
+        Activator.logInfo(MarkingStoryValidator.class.getSimpleName()+": Validating: " + parts);
         
         MonitoredExecutor executor = new MonitoredExecutor(Activator.getDefault().getExecutor());
-        executor.execute(checkStepsAsRunnable(parts));
-        executor.execute(checkNarrativeAsRunnable(parts));
+        executor.execute(validateStepsAsRunnable(parts));
+        executor.execute(validateNarrativeAsRunnable(parts));
 
         try {
             Activator.logInfo(MarkingStoryValidator.class.getSimpleName()+": Awaiting termination of validation");
             executor.awaitCompletion();
         } catch (InterruptedException e) {
-            Activator.logError(MarkingStoryValidator.class.getSimpleName()+": Error while validating parts: " + parts, e);
+            Activator.logError(MarkingStoryValidator.class.getSimpleName()+": Error while validating: " + parts, e);
         }
 
         IWorkspaceRunnable r = new IWorkspaceRunnable() {
             public void run(IProgressMonitor monitor) throws CoreException {
                 monitor.beginTask("Applying marks", parts.length());
-                for (Part part : parts) {
+                for (ValidatingPart part : parts) {
                     applyMarks(part.getStoryElement(), part.getMarks());
                     monitor.worked(1);
                 }
-                afterApplyCallback.run();
             }
 
         };
@@ -116,83 +115,83 @@ public class MarkingStoryValidator extends AbstractStoryValidator {
         }
     }
 
-    private Runnable checkNarrativeAsRunnable(final fj.data.List<Part> parts) {
+    private Runnable validateNarrativeAsRunnable(final fj.data.List<ValidatingPart> parts) {
         return new Runnable() {
             public void run() {
                 try {
-                    checkNarrative(parts);
+                    validateNarrative(parts);
                 } catch (Throwable e) {
-                    Activator.logError(MarkingStoryValidator.class.getSimpleName()+": Error while checking narrative for parts: " + parts, e);
+                    Activator.logError(MarkingStoryValidator.class.getSimpleName()+": Error while validating narrative: " + parts, e);
                 }
             }
         };
     }
     
-    private void checkNarrative(final fj.data.List<Part> parts) throws JavaModelException {
+    private void validateNarrative(final fj.data.List<ValidatingPart> parts) throws JavaModelException {
         boolean nonNarrativeOrIgnorable = false;
         
-        Part narrative = null;
-        Part inOrderTo = null;
-        Part asA = null;
-        Part iWantTo = null;
-        Part soThat = null;
+        ValidatingPart narrative = null;
+        ValidatingPart inOrderTo = null;
+        ValidatingPart asA = null;
+        ValidatingPart iWantTo = null;
+        ValidatingPart soThat = null;
         
-        Iterator<Part> iterator = parts.iterator();
+        Iterator<ValidatingPart> iterator = parts.iterator();
         while(iterator.hasNext()) {
-            Part part = iterator.next();
-            Keyword keyword = part.partType();
+            ValidatingPart part = iterator.next();
+            Keyword keyword = part.getKeyword();
             if(keyword==null) {
                 continue;
             }
             if(keyword.isNarrative()) {
                 // narrative must be the first
                 if(nonNarrativeOrIgnorable) {
-                    part.addErrorMark(Marks.Code.InvalidNarrativePosition, "Narrative must be the first section");
+                    part.addMark(Marks.Code.InvalidNarrativePosition, "Narrative must be the first section", IMarker.SEVERITY_ERROR);
                 }
                 else {
                     switch(keyword) {
                         case Narrative:
                             if(narrative!=null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_multipleNarrative, "Only one 'Narrative:' element is allowed");
-                            else
+								part.addMark(Marks.Code.InvalidNarrativeSequence_multipleNarrative, "Only one 'Narrative:' element is allowed", IMarker.SEVERITY_ERROR);
+							else
                                 narrative = part;
                             break;
                         case InOrderTo:
                             if(narrative==null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingNarrative, "Missing 'Narrative:' element");
-                            else if(inOrderTo!=null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_multipleInOrderTo, "Only one 'In order to' element is allowed");
-                            else
+								part.addMark(Marks.Code.InvalidNarrativeSequence_missingNarrative, "Missing 'Narrative:' element", IMarker.SEVERITY_ERROR);
+							else if(inOrderTo!=null)
+								part.addMark(Marks.Code.InvalidNarrativeSequence_multipleInOrderTo, "Only one 'In order to' element is allowed", IMarker.SEVERITY_ERROR);
+							else
                                 inOrderTo = part;
                             break;
                         case AsA:
                             if(narrative==null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingNarrative, "Missing 'Narrative:' element");
-                            else if(asA!=null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_multipleAsA, "Only one 'As a' element is allowed");
-                            else
+								part.addMark(Marks.Code.InvalidNarrativeSequence_missingNarrative, "Missing 'Narrative:' element", IMarker.SEVERITY_ERROR);
+							else if(asA!=null)
+								part.addMark(Marks.Code.InvalidNarrativeSequence_multipleAsA, "Only one 'As a' element is allowed", IMarker.SEVERITY_ERROR);
+							else
                                 asA = part;
                             break;
                         case IWantTo:
                             if(narrative==null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingNarrative, "Missing 'Narrative:' element");
-                            else if(asA==null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingAsA, "Missing 'As a' element");
-                            else if(iWantTo!=null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_multipleIWantTo, "Only one 'I want to' element is allowed");
-                            else
+								part.addMark(Marks.Code.InvalidNarrativeSequence_missingNarrative, "Missing 'Narrative:' element", IMarker.SEVERITY_ERROR);
+							else if(asA==null)
+								part.addMark(Marks.Code.InvalidNarrativeSequence_missingAsA, "Missing 'As a' element", IMarker.SEVERITY_ERROR);
+							else if(iWantTo!=null)
+								part.addMark(Marks.Code.InvalidNarrativeSequence_multipleIWantTo, "Only one 'I want to' element is allowed", IMarker.SEVERITY_ERROR);
+							else
                                 iWantTo = part;
                             break;
                         case SoThat:
                             if(narrative==null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingNarrative, "Missing 'Narrative:' element");
-                            else if(asA==null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingAsA, "Missing 'As a' element");
-                            else if(iWantTo==null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingIWantTo, "Missing 'I want to' element");
-                            else if(soThat!=null)
-                                part.addErrorMark(Marks.Code.InvalidNarrativeSequence_multipleSoThat, "Only one 'So that' element is allowed");
-                            else
+								part.addMark(Marks.Code.InvalidNarrativeSequence_missingNarrative, "Missing 'Narrative:' element", IMarker.SEVERITY_ERROR);
+							else if(asA==null)
+								part.addMark(Marks.Code.InvalidNarrativeSequence_missingAsA, "Missing 'As a' element", IMarker.SEVERITY_ERROR);
+							else if(iWantTo==null)
+								part.addMark(Marks.Code.InvalidNarrativeSequence_missingIWantTo, "Missing 'I want to' element", IMarker.SEVERITY_ERROR);
+							else if(soThat!=null)
+								part.addMark(Marks.Code.InvalidNarrativeSequence_multipleSoThat, "Only one 'So that' element is allowed", IMarker.SEVERITY_ERROR);
+							else
                                 soThat = part;
                             break;
 					default:
@@ -213,30 +212,30 @@ public class MarkingStoryValidator extends AbstractStoryValidator {
             if(inOrderTo!=null) {
                 if(asA!=null) {
                     if(iWantTo==null) {
-                      asA.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingIWantTo, "Missing 'I want to' element");
+                      asA.addMark(Marks.Code.InvalidNarrativeSequence_missingIWantTo, "Missing 'I want to' element", IMarker.SEVERITY_ERROR);
                     }
                 }
                 else {
-                    inOrderTo.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingAsA, "Missing 'As a' element");
+                    inOrderTo.addMark(Marks.Code.InvalidNarrativeSequence_missingAsA, "Missing 'As a' element", IMarker.SEVERITY_ERROR);
                 }
             } else if (soThat!=null){
                 if(asA!=null) {
                     if(iWantTo==null) {
-                      asA.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingIWantTo, "Missing 'I want to' element");
+                      asA.addMark(Marks.Code.InvalidNarrativeSequence_missingIWantTo, "Missing 'I want to' element", IMarker.SEVERITY_ERROR);
                     }
                 }
                 else {
-                	soThat.addErrorMark(Marks.Code.InvalidNarrativeSequence_missingAsA, "Missing 'As a' element");
+                	soThat.addMark(Marks.Code.InvalidNarrativeSequence_missingAsA, "Missing 'As a' element", IMarker.SEVERITY_ERROR);
                 }
             }
         }
         
     }
 
-    protected void checkSteps(final fj.data.List<Part> parts) throws JavaModelException {
-        final fj.data.List<Part> steps = parts.filter(new F<Part,Boolean>() {
-            public Boolean f(Part part) {
-                return Keyword.isStep(part.partType());
+    protected void validateSteps(final fj.data.List<ValidatingPart> parts) throws JavaModelException {
+        final fj.data.List<ValidatingPart> steps = parts.filter(new F<ValidatingPart,Boolean>() {
+            public Boolean f(ValidatingPart part) {
+                return Keyword.isStep(part.getKeyword());
             };
         });
         
@@ -246,36 +245,33 @@ public class MarkingStoryValidator extends AbstractStoryValidator {
         locator.traverseSteps(new Visitor<StepCandidate, Object>() {
             @Override
             public void visit(StepCandidate candidate) {
-                log.debug("Evaluating candidate: <{}>", candidate);
-                for (Part part : steps) {
+                log.debug("Evaluating step candidate: <{}>", candidate);
+                for (ValidatingPart part : steps) {
                     part.evaluateCandidate(candidate);
                 }
             }
         });
         
-        log.debug("All candidates have been evaluated");
+        log.debug("All step candidates have been evaluated");
 
-        for (Part part : steps) {
-            String key = part.extractStepSentenceAndRemoveTrailingNewlines();
-            ConcurrentLinkedQueue<StepCandidate> candidates = part.getCandidates();
+        for (ValidatingPart step : steps) {
+            String stepAsText = step.text();            		
+            ConcurrentLinkedQueue<StepCandidate> candidates = step.getCandidates();
             int count = candidates.size();
-            log.debug("#" + count + "result(s) found for >>" + Strings.escapeNL(key) + "<<");
-            if (count == 0)
-                part.addWarningMark(Marks.Code.NoMatchingStep, "No step is matching <" + key + ">");
-            else if (count > 1) {
-                
-                fj.data.List<Integer> collectedPrios = iterableList(candidates).map(new TransformByPriority());
-                int max = collectedPrios.maximum(Ord.intOrd);
-                int countWithMax = collectedPrios.filter(Equal.intEqual.eq(max)).length();
-                if (countWithMax>1) {
-                    MarkData mark = part.addWarningMark(Marks.Code.MultipleMatchingSteps, "Ambiguous step: " + count + " steps are matching <" + key + "> got: " + candidates);
+            log.debug("#" + count + " candidate(s) found for >>" + Strings.escapeNL(stepAsText) + "<<");
+            if (count == 0) {
+				step.addMark(Marks.Code.NoMatchingStep, "No step is matching <" + stepAsText + ">", IMarker.SEVERITY_WARNING);
+            } else if (count > 1){                
+                fj.data.List<Integer> priorities = iterableList(candidates).map(new TransformByPriority());
+                int max = priorities.maximum(Ord.intOrd);
+                int countWithMax = priorities.filter(Equal.intEqual.eq(max)).length();
+                if (countWithMax > 1){
+                    MarkData mark = step.addMark(Marks.Code.MultipleMatchingSteps, "Ambiguous step: " + count + " steps are matching <" + stepAsText + "> got: " + candidates, IMarker.SEVERITY_WARNING);
                     Marks.putStepsAsHtml(mark, candidates);
-                }
-                else {
-                    MarkData mark = part.addInfoMark(Marks.Code.MultipleMatchingSteps_PrioritySelection, 
-                            "Multiple steps matching, but only one with the highest priority for <" + key + ">");
+                } else {
+                    MarkData mark = step.addMark(Marks.Code.MultipleMatchingSteps_PrioritySelection, "Multiple steps matching, but only one with the highest priority for <" + stepAsText + ">", IMarker.SEVERITY_INFO);
                     Marks.putStepsAsHtml(mark, candidates);
-                    log.debug("#{} matching steps but only one with the highest priority for {}", candidates.size(), key);
+                    log.debug("#{} matching steps but only one with the highest priority for {}", candidates.size(), stepAsText);
                 }
             }
         }

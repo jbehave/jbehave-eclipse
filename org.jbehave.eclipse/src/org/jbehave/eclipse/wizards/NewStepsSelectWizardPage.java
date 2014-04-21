@@ -21,12 +21,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.jbehave.core.steps.MarkUnmatchedStepsAsPending;
 import org.jbehave.eclipse.JBehaveProject;
 import org.jbehave.eclipse.JBehaveProjectRegistry;
 import org.jbehave.eclipse.editor.story.validator.PendingStoryValidator;
 import org.jbehave.eclipse.parser.StoryElement;
-import org.jbehave.eclipse.util.Runnables;
 
 public class NewStepsSelectWizardPage extends WizardPage {
 
@@ -73,7 +71,6 @@ public class NewStepsSelectWizardPage extends WizardPage {
 				}
 			}
 		});
-		new MarkUnmatchedStepsAsPending();
 		// set the composite as the control for this page
 		setControl(composite);
 	}
@@ -85,9 +82,9 @@ public class NewStepsSelectWizardPage extends WizardPage {
 			JBehaveProject project = JBehaveProjectRegistry.get()
 					.getOrCreateProject(file.getProject());
 			IDocument document = new Document(contentOf(file));
-			PendingStoryValidator pendingValidator = new PendingStoryValidator(project, document);
-			pendingValidator.validate(Runnables.noop());
-			for (StoryElement element : pendingValidator.getPending()) {
+			PendingStoryValidator validator = new PendingStoryValidator(project, document);
+			validator.validate();
+			for (StoryElement element : validator.getPending()) {
 				if (element.isStep()) {
 					steps.add(new NewStep(element));
 				}

@@ -1,7 +1,6 @@
 package org.jbehave.eclipse.editor.step;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.jbehave.core.parsers.RegexPrefixCapturingPatternParser;
@@ -73,8 +72,8 @@ public class StepCandidate {
 		}
 	}
 
-	public boolean matches(String step) {
-		return getMatcher(stepType, stepPattern).matches(step);
+	public boolean matches(String stepWithoutKeyword) {
+		return matcher(stepType, stepPattern).matches(stepWithoutKeyword);
 	}
 
 	public String toString() {
@@ -98,7 +97,7 @@ public class StepCandidate {
 		return builder.toString();
 	}
 
-	private StepMatcher getMatcher(StepType stepType, String stepPattern) {
+	private StepMatcher matcher(StepType stepType, String stepPattern) {
 		return stepParser.parseStep(stepType, stepPattern);
 	}
 

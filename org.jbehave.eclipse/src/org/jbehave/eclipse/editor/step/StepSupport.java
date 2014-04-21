@@ -36,8 +36,8 @@ public class StepSupport {
 				localizedStepSupport.and(true));
 	}
 
-	public static boolean isStepAnd(
-			LocalizedStepSupport localizedStepSupport, String step) {
+	public static boolean isStepAnd(LocalizedStepSupport localizedStepSupport,
+			String step) {
 		return decorate(step).startsWithOneOfIgnoringCase(
 				localizedStepSupport.and(true));
 	}
@@ -58,10 +58,9 @@ public class StepSupport {
 	}
 
 	/**
-	 * Remove the step keyword from the given line. <strong>In case of multiline
-	 * step</strong> you may prefer to use the
-	 * {@link #extractStepSentenceAndRemoveTrailingNewlines(String)}
-	 * alternative.
+	 * Remove the step keyword from the given line. In case of multi-line step,
+	 * the {@link #stepWithoutKeywordAndTrailingNewlines(String)} may be a
+	 * preferable alternative.
 	 * 
 	 * @param step
 	 * @return A step without keyword

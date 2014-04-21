@@ -104,9 +104,9 @@ public class StepParserTest {
     public void usecase_ex1() throws Exception {
         storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx02.story"));
         
-        when(locator.findFirstStep("a user named \"Bob\"")).thenReturn(givenStep("a user named \"$name\""));
-        when(locator.findFirstStep("'Bob' clicks on the 'login' button")).thenReturn(whenStep("'$who' clicks on the '$button' button"));
-        when(locator.findFirstStep("the 'password' field becomes 'red'")).thenReturn(thenStep("the '$field' field becomes '$color'"));
+        when(locator.findFirstMatchingCandidate("a user named \"Bob\"")).thenReturn(givenStep("a user named \"$name\""));
+        when(locator.findFirstMatchingCandidate("'Bob' clicks on the 'login' button")).thenReturn(whenStep("'$who' clicks on the '$button' button"));
+        when(locator.findFirstMatchingCandidate("the 'password' field becomes 'red'")).thenReturn(thenStep("the '$field' field becomes '$color'"));
         
         IDocument document= new Document(storyAsText);
         
@@ -139,7 +139,7 @@ public class StepParserTest {
         StepCandidate user = givenStep("a user named $username");
         
         storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx03-light.story")).replace("\r\n", "\n");
-        when(locator.findFirstStep("a user named $username")).thenReturn(user);
+        when(locator.findFirstMatchingCandidate("a user named $username")).thenReturn(user);
         
         IDocument document= new Document(storyAsText);
         
@@ -165,11 +165,11 @@ public class StepParserTest {
         StepCandidate clicks = whenStep("user clicks on $button button");
         
         storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx03.story")).replace("\r\n", "\n");
-        when(locator.findFirstStep("a user named $username")).thenReturn(user);
-        when(locator.findFirstStep("user clicks on $button button")).thenReturn(clicks);
-        when(locator.findFirstStep("user credits is 5 dollars")).thenReturn(credits);
-        when(locator.findFirstStep("a user named username")).thenReturn(user);
-        when(locator.findFirstStep("user credits is 5 dollars")).thenReturn(credits);
+        when(locator.findFirstMatchingCandidate("a user named $username")).thenReturn(user);
+        when(locator.findFirstMatchingCandidate("user clicks on $button button")).thenReturn(clicks);
+        when(locator.findFirstMatchingCandidate("user credits is 5 dollars")).thenReturn(credits);
+        when(locator.findFirstMatchingCandidate("a user named username")).thenReturn(user);
+        when(locator.findFirstMatchingCandidate("user credits is 5 dollars")).thenReturn(credits);
         
         IDocument document= new Document(storyAsText);
         
@@ -209,10 +209,10 @@ public class StepParserTest {
         StepCandidate credits = whenStep("user credits is $amount dollars");
         
         storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx03.story")).replace("\r\n", "\n");
-        when(locator.findFirstStep("a user named $username")).thenReturn(user);
-        when(locator.findFirstStep("user credits is 5 dollars")).thenReturn(credits);
-        when(locator.findFirstStep("a user named username")).thenReturn(user);
-        when(locator.findFirstStep("user credits is 5 dollars")).thenReturn(credits);
+        when(locator.findFirstMatchingCandidate("a user named $username")).thenReturn(user);
+        when(locator.findFirstMatchingCandidate("user credits is 5 dollars")).thenReturn(credits);
+        when(locator.findFirstMatchingCandidate("a user named username")).thenReturn(user);
+        when(locator.findFirstMatchingCandidate("user credits is 5 dollars")).thenReturn(credits);
         
         IDocument document= new Document(storyAsText);
         
@@ -251,7 +251,7 @@ public class StepParserTest {
         final StepCandidate user = givenStep("a new account named 'networkAgent' with the following properties (properties not set will be completed) $exampleTable");
         
         storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx04.story"));
-        when(locator.findFirstStep(Mockito.anyString())).thenAnswer(new Answer<StepCandidate>() {
+        when(locator.findFirstMatchingCandidate(Mockito.anyString())).thenAnswer(new Answer<StepCandidate>() {
             @Override
             public StepCandidate answer(InvocationOnMock invocation) throws Throwable {
                 String searched = (String) invocation.getArguments()[0];
@@ -297,7 +297,7 @@ public class StepParserTest {
         final StepCandidate user = givenStep("a new account named 'networkAgent' with the following properties (properties not set will be completed) $exampleTable");
         
         storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx06-exampletable.story"));
-        when(locator.findFirstStep(Mockito.anyString())).thenAnswer(new Answer<StepCandidate>() {
+        when(locator.findFirstMatchingCandidate(Mockito.anyString())).thenAnswer(new Answer<StepCandidate>() {
             @Override
             public StepCandidate answer(InvocationOnMock invocation) throws Throwable {
                 String searched = (String) invocation.getArguments()[0];
@@ -371,7 +371,7 @@ public class StepParserTest {
     @Ignore
     public void usecase_ex5() throws Exception {
         StepCandidate seeHomePage = thenStep("agent see the application home page");
-        when(locator.findFirstStep("agent see the application home page")).thenReturn(seeHomePage);
+        when(locator.findFirstMatchingCandidate("agent see the application home page")).thenReturn(seeHomePage);
         
         storyAsText = IOUtils.toString(getClass().getResourceAsStream("/domain/i_can_login_using_parameters_table.story"));
         IDocument document= new Document(storyAsText);

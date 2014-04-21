@@ -9,7 +9,6 @@ import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.jbehave.eclipse.JBehaveProject;
 import org.jbehave.eclipse.editor.step.LocalizedStepSupport;
 import org.jbehave.eclipse.editor.step.StepJumper;
-import org.jbehave.eclipse.parser.RegexUtils;
 import org.jbehave.eclipse.parser.StoryElement;
 import org.jbehave.eclipse.util.Ref;
 import org.slf4j.Logger;
@@ -43,23 +42,21 @@ public class StepHyperLinkDetector implements IHyperlinkDetector {
             return NONE;
         }
 
-        final StoryElement part = found.get();
-        if (!part.isStep()) {
-            logger.debug("Part found is not a step part got: {}", part.extractKeyword());
+        final StoryElement element = found.get();
+        if (!element.isStep()) {
+            logger.debug("Element found is not a step.  Has keyword: {}", element.extractKeyword());
             return NONE;
         }
-        final String step = part.stepWithoutKeyword();
-        final String partCleaned = RegexUtils.removeTrailingComment(part.getContent());
         IHyperlink link = new IHyperlink() {
 
             @Override
             public IRegion getHyperlinkRegion() {
-                return new Region(part.getOffset(), partCleaned.length());
+                return new Region(element.getOffset(), element.getContentWithoutTrailingComment().length());
             }
 
             @Override
             public String getHyperlinkText() {
-                return step;
+                return element.getContent();
             }
 
             @Override
@@ -70,7 +67,7 @@ public class StepHyperLinkDetector implements IHyperlinkDetector {
             @Override
             public void open() {
                 try {
-                    new StepJumper(jbehaveProject).jumpToDeclaration(viewer, step);
+                    new StepJumper(jbehaveProject).jumpToMethod(viewer, element);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

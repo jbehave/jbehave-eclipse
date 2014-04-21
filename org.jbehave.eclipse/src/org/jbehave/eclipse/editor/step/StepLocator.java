@@ -29,11 +29,10 @@ public class StepLocator {
 	static boolean findCandidatesCheckStepType = true;
 
 	/**
-	 * Finds the step candidates starting with a given text,
-	 * ordered by their weight
+	 * Finds the step candidates starting with a given text, ordered by their
+	 * weight
 	 */
-	public Iterable<WeightedStep> findCandidatesStartingWith(
-			final String step) {
+	public Iterable<WeightedStep> findCandidatesStartingWith(final String step) {
 		log.debug("Finding candidates starting with <{}>", step);
 		try {
 			LocalizedStepSupport localizedStepSupport = project
@@ -66,51 +65,11 @@ public class StepLocator {
 				}
 			};
 			traverseSteps(findOne);
-			ConcurrentLinkedQueue<WeightedStep> elements = findOne.getElementsFound();
+			ConcurrentLinkedQueue<WeightedStep> elements = findOne
+					.getElementsFound();
 			log.debug("Candidates starting with <{}> found: #{}", step,
 					elements.size());
 			return elements;
-		} catch (JavaModelException e) {
-			log.error("Failed to find candidates for step <" + step + ">",
-					e);
-			Activator.logError("Failed to find candidates for step <"
-					+ step + ">", e);
-		}
-		return null;
-	}
-
-	/**
-	 * Returns the first {@link StepCandidate} found that match the step,
-	 * ordered by priority. Be careful that there can be several other
-	 * {@link StepCandidate}s that fulfill the step too.
-	 * 
-	 * @param step
-	 * @return
-	 */
-	public StepCandidate findFirstStep(final String step) {
-		log.debug("Attempt to find the first step matching <{}>", step);
-
-		try {
-			Visitor<StepCandidate, StepCandidate> matchingStepVisitor = new Visitor<StepCandidate, StepCandidate>() {
-				@Override
-				public void visit(StepCandidate candidate) {
-					boolean matches = candidate.matches(step);
-					if (matches) {
-						add(candidate);
-					}
-				}
-			};
-			traverseSteps(matchingStepVisitor);
-			StepCandidate found = getFirstStepWithHighestPrio(matchingStepVisitor
-					.getElementsFound());
-			if (found == null) {
-				log.debug("No candidate found matching <{}>", step);
-				return null;
-			} else {
-				log.debug("First candidate matching <{}> found: <{}>", step,
-						found.stepPattern);
-				return found;
-			}
 		} catch (JavaModelException e) {
 			log.error("Failed to find candidates for step <" + step + ">", e);
 			Activator.logError("Failed to find candidates for step <" + step
@@ -120,31 +79,72 @@ public class StepLocator {
 	}
 
 	/**
+	 * Returns the first {@link StepCandidate} found that match the step,
+	 * ordered by priority. Be careful that there can be several other
+	 * {@link StepCandidate}s that fulfill the step too.
 	 * 
-	 * @param findOne
-	 * @return
+	 * @param stepWithoutKeyword
+	 *            the step to match without keyword
+	 * @return A StepCandidate
 	 */
-	private StepCandidate getFirstStepWithHighestPrio(
+	public StepCandidate findFirstMatchingCandidate(
+			final String stepWithoutKeyword) {
+		log.debug("Finding the first step candidate matching <{}>",
+				stepWithoutKeyword);
+
+		try {
+			Visitor<StepCandidate, StepCandidate> matchingStepVisitor = new Visitor<StepCandidate, StepCandidate>() {
+				@Override
+				public void visit(StepCandidate candidate) {
+					boolean matches = candidate.matches(stepWithoutKeyword);
+					if (matches) {
+						add(candidate);
+					}
+				}
+			};
+			traverseSteps(matchingStepVisitor);
+			StepCandidate found = firstCandidateWithHighestPriority(matchingStepVisitor
+					.getElementsFound());
+			if (found == null) {
+				log.debug("No candidate found matching <{}>",
+						stepWithoutKeyword);
+				return null;
+			} else {
+				log.debug("First candidate matching <{}> found: <{}>",
+						stepWithoutKeyword, found.stepPattern);
+				return found;
+			}
+		} catch (JavaModelException e) {
+			log.error("Failed to find candidates for step <"
+					+ stepWithoutKeyword + ">", e);
+			Activator.logError("Failed to find candidates for step <"
+					+ stepWithoutKeyword + ">", e);
+		}
+		return null;
+	}
+
+	private StepCandidate firstCandidateWithHighestPriority(
 			Iterable<StepCandidate> candidates) {
-		fj.data.List<Integer> collectedPrios = iterableList(candidates).map(
+		fj.data.List<Integer> priorities = iterableList(candidates).map(
 				new TransformByPriority());
-		if (collectedPrios.isEmpty()) {
+		if (priorities.isEmpty()) {
 			return null;
 		}
 
-		final int maxPrio = collectedPrios.maximum(Ord.intOrd);
-		fj.data.List<StepCandidate> maxPrioSteps = iterableList(candidates)
-				.filter(new FilterByPriority(maxPrio));
+		final int maxPriority = priorities.maximum(Ord.intOrd);
+		fj.data.List<StepCandidate> candidatesByPriority = iterableList(
+				candidates).filter(new FilterByPriority(maxPriority));
 
-		return maxPrioSteps.head();
+		return candidatesByPriority.head();
 	}
 
 	public IJavaElement findMethod(final String step) {
-		log.debug("Attempt to find method for <{}>", step);
-		StepCandidate pStep = findFirstStep(step);
-		if (pStep != null) {
-			log.debug("Method found for <{}>: <{}>", step, pStep.method);
-			return pStep.method;
+		log.debug("Finding method for step <{}>", step);
+		StepCandidate stepCandidate = findFirstMatchingCandidate(step);
+		if (stepCandidate != null) {
+			log.debug("Method found for step <{}>: <{}>", step,
+					stepCandidate.method);
+			return stepCandidate.method;
 		} else {
 			log.debug("No method found for <{}>", step);
 			return null;
@@ -152,15 +152,13 @@ public class StepLocator {
 	}
 
 	public IJavaElement findMethodByQualifiedName(final String qualifiedName) {
-		log.debug("Attempt to find method using its qualified name <{}>",
-				qualifiedName);
+		log.debug("Finding method using its qualified name <{}>", qualifiedName);
 		try {
 			Visitor<StepCandidate, StepCandidate> findOne = new Visitor<StepCandidate, StepCandidate>() {
 				@Override
 				public void visit(StepCandidate candidate) {
-					String qName = JDTUtils
-							.formatQualifiedName(candidate.method);
-					if (qName.equals(qualifiedName)) {
+					if (JDTUtils.formatQualifiedName(candidate.method).equals(
+							qualifiedName)) {
 						add(candidate);
 						done();
 					}

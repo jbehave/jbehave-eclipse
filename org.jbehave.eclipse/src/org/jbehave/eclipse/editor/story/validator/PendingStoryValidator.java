@@ -33,26 +33,26 @@ public class PendingStoryValidator extends AbstractStoryValidator {
     	super(project, document);
     }
 
-    public void validate(Runnable afterApplyCallback) {
-        analyze(new StoryDocumentUtils(project.getLocalizedStepSupport()).getStoryElements(document), afterApplyCallback);
+    public void validate() {
+        validate(new StoryDocumentUtils(project.getLocalizedStepSupport()).getStoryElements(document));
     }
 
     public List<StoryElement> getPending() {
 		return pending;
 	}
 
-    protected void analyze(final List<StoryElement> storyElements, final Runnable afterApplyCallback) {
-        final fj.data.List<Part> parts = iterableList(storyElements).map(new F<StoryElement,Part>() {
+    protected void validate(final List<StoryElement> storyElements) {
+        final fj.data.List<ValidatingPart> parts = iterableList(storyElements).map(new F<StoryElement,ValidatingPart>() {
             @Override
-            public Part f(StoryElement storyElement) {
-                return new Part(storyElement);
+            public ValidatingPart f(StoryElement storyElement) {
+                return new ValidatingPart(storyElement);
             }
         });
         
         Activator.logInfo(PendingStoryValidator.class.getSimpleName()+": Analyzing parts " + parts);
         
         MonitoredExecutor executor = new MonitoredExecutor(Activator.getDefault().getExecutor());
-        executor.execute(checkStepsAsRunnable(parts));
+        executor.execute(validateStepsAsRunnable(parts));
 
         try {
             Activator.logInfo(PendingStoryValidator.class.getSimpleName()+": Awaiting termination of validation");
@@ -64,36 +64,35 @@ public class PendingStoryValidator extends AbstractStoryValidator {
     }
     
    
-    protected void checkSteps(final fj.data.List<Part> parts) throws JavaModelException {
-        final fj.data.List<Part> steps = parts.filter(new F<Part,Boolean>() {
-            public Boolean f(Part part) {
-                return Keyword.isStep(part.partType());
+    protected void validateSteps(final fj.data.List<ValidatingPart> parts) throws JavaModelException {
+        final fj.data.List<ValidatingPart> steps = parts.filter(new F<ValidatingPart,Boolean>() {
+            public Boolean f(ValidatingPart part) {
+                return Keyword.isStep(part.getKeyword());
             };
         });
         
-        log.debug("Checking steps");
+        log.debug("Validating steps");
         
         StepLocator locator = project.getStepLocator();
         locator.traverseSteps(new Visitor<StepCandidate, Object>() {
             @Override
             public void visit(StepCandidate candidate) {
-                log.debug("Evaluating candidate: <{}>", candidate);
-                for (Part part : steps) {
-                    part.evaluateCandidate(candidate);
+                log.debug("Evaluating step candidate: <{}>", candidate);
+                for (ValidatingPart step : steps) {
+                    step.evaluateCandidate(candidate);
                 }
             }
         });
         
-        log.debug("All candidates have been evaluated");
+        log.debug("All step candidates have been evaluated");
 
-        for (Part part : steps) {
-            String pattern = part.extractStepSentenceAndRemoveTrailingNewlines();
-            ConcurrentLinkedQueue<StepCandidate> candidates = part.getCandidates();
+        for (ValidatingPart step : steps) {
+            ConcurrentLinkedQueue<StepCandidate> candidates = step.getCandidates();
             int count = candidates.size();
-            log.debug("#" + count + "result(s) found for >>" + Strings.escapeNL(pattern) + "<<");
-            if (count == 0){
-            	pending.add(part.getStoryElement());
-            }
+			if (count == 0) {
+	            log.debug("No step candidate found for >>" + Strings.escapeNL(step.text()) + "<<");
+				pending.add(step.getStoryElement());
+			}
         }
     }
     

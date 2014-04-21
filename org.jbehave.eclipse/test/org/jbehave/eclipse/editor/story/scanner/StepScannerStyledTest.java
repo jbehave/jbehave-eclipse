@@ -81,7 +81,7 @@ public class StepScannerStyledTest {
 
 	@Test
     public void useCase_ex1() {
-        when(stepLocator.findFirstStep(Mockito.anyString())).thenAnswer(new Answer<StepCandidate>() {
+        when(stepLocator.findFirstMatchingCandidate(Mockito.anyString())).thenAnswer(new Answer<StepCandidate>() {
             @Override
             public StepCandidate answer(InvocationOnMock invocation) throws Throwable {
                 System.out.println("StepScannerStyledTest.useCase_ex1(" + invocation + ")");

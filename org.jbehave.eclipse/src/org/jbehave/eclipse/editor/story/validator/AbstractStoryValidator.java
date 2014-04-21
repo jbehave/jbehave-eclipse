@@ -6,7 +6,6 @@ import static org.jbehave.eclipse.util.Objects.o;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.text.IDocument;
 import org.jbehave.eclipse.Activator;
@@ -38,56 +37,54 @@ public abstract class AbstractStoryValidator {
         this.document = document;
     }
 
-    public void validate(Runnable afterApplyCallback) {
-        analyze(new StoryDocumentUtils(project.getLocalizedStepSupport()).getStoryElements(document), afterApplyCallback);
+    public void validate() {
+        validate(new StoryDocumentUtils(project.getLocalizedStepSupport()).getStoryElements(document));
     }
 
-	protected void analyze(final List<StoryElement> storyElements, final Runnable afterApplyCallback) {
-        final fj.data.List<Part> parts = iterableList(storyElements).map(new F<StoryElement,Part>() {
+	protected void validate(final List<StoryElement> storyElements) {
+        final fj.data.List<ValidatingPart> parts = iterableList(storyElements).map(new F<StoryElement,ValidatingPart>() {
             @Override
-            public Part f(StoryElement storyElement) {
-                return new Part(storyElement);
+            public ValidatingPart f(StoryElement storyElement) {
+                return new ValidatingPart(storyElement);
             }
         });
         
-        Activator.logInfo(AbstractStoryValidator.class.getSimpleName()+": Analyzing parts " + parts);
+        Activator.logInfo(AbstractStoryValidator.class.getSimpleName()+": Validating: " + parts);
         
         MonitoredExecutor executor = new MonitoredExecutor(Activator.getDefault().getExecutor());
-        executor.execute(checkStepsAsRunnable(parts));
+        executor.execute(validateStepsAsRunnable(parts));
 
         try {
             Activator.logInfo(AbstractStoryValidator.class.getSimpleName()+": Awaiting termination of validation");
             executor.awaitCompletion();
         } catch (InterruptedException e) {
-            Activator.logError(AbstractStoryValidator.class.getSimpleName()+": Error while analyzing parts: " + parts, e);
+            Activator.logError(AbstractStoryValidator.class.getSimpleName()+": Error while validating: " + parts, e);
         }
 
-    }
-    
+    }    
    
-    protected Runnable checkStepsAsRunnable(final fj.data.List<Part> parts)  {
+    protected Runnable validateStepsAsRunnable(final fj.data.List<ValidatingPart> parts)  {
         return new Runnable() {
             public void run() {
                 try {
-                    checkSteps(parts);
+                    validateSteps(parts);
                 } catch (Throwable e) {
-                    Activator.logError(AbstractStoryValidator.class.getSimpleName()+": Error while checking steps for parts: " + parts, e);
+                    Activator.logError(AbstractStoryValidator.class.getSimpleName()+": Error while validating steps: " + parts, e);
                 }
             }
         };
     }
 
-    protected abstract void checkSteps(final fj.data.List<Part> parts) throws JavaModelException;
+    protected abstract void validateSteps(final fj.data.List<ValidatingPart> parts) throws JavaModelException;
     
-    class Part {
+    class ValidatingPart {
         private final ConcurrentLinkedQueue<MarkData> marks = New.concurrentLinkedQueue();
         private final ConcurrentLinkedQueue<StepCandidate> candidates = New.concurrentLinkedQueue();
         private final StoryElement storyElement;
 
-        protected Part(StoryElement storyElement) {
-            super();
+        protected ValidatingPart(StoryElement storyElement) {
             this.storyElement = storyElement;
-            computeExtractStepSentenceAndRemoveTrailingNewlines();
+            extractStepWithoutKeywordAndTrailingComment();
         }
         
         protected ConcurrentLinkedQueue<MarkData> getMarks(){
@@ -98,23 +95,22 @@ public abstract class AbstractStoryValidator {
         	return storyElement;
         }
         
-        protected Keyword partType() {
+        protected Keyword getKeyword() {
             return storyElement.getPreferredKeyword();
         }
 
         public void evaluateCandidate(StepCandidate candidate) {
-            String pattern = extractStepSentenceAndRemoveTrailingNewlines();
-            Keyword type = partType();
-            log.debug("Candidate evaluated against part {}", storyElement);
+            Keyword keyword = getKeyword();
+            String pattern = stepWithoutKeywordAndTrailingComment;
+            log.debug("Evaluating step candidate against {}", storyElement);
+            boolean typeMatch = keyword.isSameAs(candidate.stepType);
             boolean patternMatch = candidate.matches(pattern);
-            boolean typeMatch = type.isSameAs(candidate.stepType);
-            if (patternMatch && typeMatch) {
+            if ( typeMatch && patternMatch ) {
                 addCandidate(candidate);
-                log.debug("<{} {}> accepts <{} {}>", o(type, pattern, //
+                log.debug("<{} {}> accepts <{} {}>", o(keyword, pattern, 
                         candidate.stepType, candidate.stepPattern));
-            }
-            else {
-                log.debug("<{} {}> rejects <{} {}>", o(type, pattern, //
+            } else {
+                log.debug("<{} {}> rejects <{} {}>", o(keyword, pattern, 
                         candidate.stepType, candidate.stepPattern));
             }
         }
@@ -127,39 +123,22 @@ public abstract class AbstractStoryValidator {
             candidates.add(candidate);
         }
 
-        private String extractStepSentenceAndRemoveTrailingNewlines;
-        public String extractStepSentenceAndRemoveTrailingNewlines() {
-            return extractStepSentenceAndRemoveTrailingNewlines;
-        }
-        
-        private void computeExtractStepSentenceAndRemoveTrailingNewlines() {
-            String stepSentence = storyElement.stepWithoutKeyword();
+        private String stepWithoutKeywordAndTrailingComment;        
+        private void extractStepWithoutKeywordAndTrailingComment() {
             // remove any comment that can still be within the step
-            String cleaned = RegexUtils.removeComment(stepSentence);
-            extractStepSentenceAndRemoveTrailingNewlines = Strings.removeTrailingNewlines(cleaned);
-        }
-
-        public MarkData addErrorMark(Marks.Code code, String message) {
-            return addMark(code, message, IMarker.SEVERITY_ERROR);
-        }
-        
-        public MarkData addInfoMark(Marks.Code code, String message) {
-            return addMark(code, message, IMarker.SEVERITY_INFO);
-        }
-
-        public MarkData addWarningMark(Marks.Code code, String message) {
-            return addMark(code, message, IMarker.SEVERITY_WARNING);
+            String cleaned = RegexUtils.removeComment(storyElement.stepWithoutKeyword());
+            stepWithoutKeywordAndTrailingComment = Strings.removeTrailingNewlines(cleaned);
         }
 
         public MarkData addMark(Marks.Code code, String message, int severity) {
-            MarkData markData = new MarkData()//
-                    .severity(severity)//
-                    .message(message)//
-                    .offsetStart(storyElement.getOffsetStart())//
+            MarkData mark = new MarkData()
+                    .severity(severity)
+                    .message(message)
+                    .offsetStart(storyElement.getOffsetStart())
                     .offsetEnd(storyElement.getOffsetEnd());
-            Marks.putCode(markData, code);
-            marks.add(markData);
-            return markData;
+            Marks.putCode(mark, code);
+            marks.add(mark);
+            return mark;
         }
 
         public String text() {
@@ -172,7 +151,7 @@ public abstract class AbstractStoryValidator {
 
         @Override
         public String toString() {
-            return "Part [offset=" + storyElement.getOffset() + ", length=" + storyElement.getLength() + ", keyword=" + storyElement.getPreferredKeyword() + ", marks="
+            return "ValidatingPart [offset=" + storyElement.getOffset() + ", length=" + storyElement.getLength() + ", keyword=" + storyElement.getPreferredKeyword() + ", marks="
                     + marks + ", text=" + textWithoutTrailingNewlines() + "]";
         }
 

@@ -8,14 +8,15 @@ import org.eclipse.jface.text.rules.IToken;
 import org.jbehave.eclipse.JBehaveProject;
 import org.jbehave.eclipse.Keyword;
 import org.jbehave.eclipse.editor.step.ParametrizedStep;
+import org.jbehave.eclipse.editor.step.ParametrizedStep.Token;
 import org.jbehave.eclipse.editor.step.ParametrizedStep.WeightChain;
 import org.jbehave.eclipse.editor.step.StepCandidate;
 import org.jbehave.eclipse.editor.step.StepLocator;
 import org.jbehave.eclipse.editor.step.StepSupport;
 import org.jbehave.eclipse.editor.text.TextAttributeProvider;
 import org.jbehave.eclipse.editor.text.style.TextStyle;
-import org.jbehave.eclipse.parser.RegexUtils;
 import org.jbehave.eclipse.parser.ContentWithIgnorableEmitter;
+import org.jbehave.eclipse.parser.RegexUtils;
 import org.jbehave.eclipse.parser.StoryElement;
 import org.jbehave.eclipse.util.Strings;
 import org.slf4j.Logger;
@@ -80,7 +81,7 @@ public class StepScanner extends StoryTokenScanner {
 		String cleanedStepSentence = Strings
 				.removeTrailingNewlines(cleanedAfterKeyword);
 
-		StepCandidate candidate = getStepLocator().findFirstStep(
+		StepCandidate candidate = getStepLocator().findFirstMatchingCandidate(
 				cleanedStepSentence);
 		if (candidate == null) {
 			log.debug("No step found");
@@ -93,18 +94,17 @@ public class StepScanner extends StoryTokenScanner {
 					.calculateWeightChain(cleanedStepSentence);
 			List<String> chainTokens = chain.tokenize();
 
-			log.debug("Step found with variable {} tokens in chain",
+			log.debug("Step found with parameters {} tokens in chain",
 					chainTokens.size());
 
 			for (int i = 0; i < chainTokens.size(); i++) {
-				org.jbehave.eclipse.editor.step.ParametrizedStep.Token pToken = parametrizedStep
-						.getToken(i);
+				Token token = parametrizedStep.getToken(i);
 				String content = chainTokens.get(i);
 
-				log.debug("Token content - length: {}, content: <{}>",
+				log.debug("Token length: {}, content: <{}>",
 						o(content.length(), f(content)));
 
-				if (pToken.isIdentifier) {
+				if (token.isIdentifier) {
 
 					log.debug("Token is an identifier <{}>", f(content));
 
@@ -126,14 +126,14 @@ public class StepScanner extends StoryTokenScanner {
 				offset += content.length();
 			}
 		} else {
-			log.debug("Parsing step <{}> step found without variable",
+			log.debug("Step found without parameters",
 					f(stepContent));
 			emit(emitter, getDefaultToken(), offset,
 					cleanedAfterKeyword.length());
 			offset += rawAfterKeyword.length();
 		}
 
-		// insert if trailings whitespace have been removed
+		// insert if trailing whitespace have been removed
 		int expectedOffset = initialOffset
 				+ (stepSep + cleanedAfterKeyword.length());
 		if (offset < expectedOffset) {

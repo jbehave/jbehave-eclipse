@@ -65,7 +65,6 @@ import org.jbehave.eclipse.editor.text.TextAttributeProvider;
 import org.jbehave.eclipse.editor.text.style.TextStyle;
 import org.jbehave.eclipse.editor.text.style.TextStylePreferences;
 import org.jbehave.eclipse.preferences.PreferenceConstants;
-import org.jbehave.eclipse.util.Runnables;
 import org.jbehave.eclipse.util.Visitor;
 
 import fj.Effect;
@@ -216,7 +215,7 @@ public class StoryEditor extends TextEditor {
             }
             MarkingStoryValidator validator = new MarkingStoryValidator(getJBehaveProject(), getInputFile(), document);
             validator.removeExistingMarkers();
-            validator.validate(Runnables.noop());
+            validator.validate();
         } catch (Exception e) {
             Activator.logError("Failed to validate content", e);
         }
@@ -333,7 +332,7 @@ public class StoryEditor extends TextEditor {
 
     public void jumpToMethod() {
         try {
-            new StepJumper(getJBehaveProject()).jumpToSelectionDeclaration(getSourceViewer());
+            new StepJumper(getJBehaveProject()).jumpToSelectedMethod(getSourceViewer());
         } catch (PartInitException e) {
             Activator.logError("Failed to jump to method", e);
         } catch (JavaModelException e) {
