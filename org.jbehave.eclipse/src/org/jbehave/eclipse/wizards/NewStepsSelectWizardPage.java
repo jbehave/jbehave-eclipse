@@ -1,7 +1,9 @@
 package org.jbehave.eclipse.wizards;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -19,15 +21,17 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.jbehave.core.steps.MarkUnmatchedStepsAsPending;
 import org.jbehave.eclipse.JBehaveProject;
 import org.jbehave.eclipse.JBehaveProjectRegistry;
-import org.jbehave.eclipse.editor.story.StoryDocumentUtils;
+import org.jbehave.eclipse.editor.story.validator.PendingStoryValidator;
 import org.jbehave.eclipse.parser.StoryElement;
+import org.jbehave.eclipse.util.Runnables;
 
 public class NewStepsSelectWizardPage extends WizardPage {
 
 	private IStructuredSelection selection;
-	private List<NewStep> selectedSteps = new ArrayList<NewStep>();
+	private Set<NewStep> selectedSteps = new HashSet<NewStep>();
 
 	public NewStepsSelectWizardPage(IStructuredSelection selection) {
 		super(WizardsMessages.GenerateStepsPageName);
@@ -37,7 +41,7 @@ public class NewStepsSelectWizardPage extends WizardPage {
 	}
 
 	public List<NewStep> getSelectedSteps() {
-		return selectedSteps;
+		return new ArrayList<NewStep>(selectedSteps);
 	}
 
 	@Override
@@ -60,11 +64,16 @@ public class NewStepsSelectWizardPage extends WizardPage {
 		tree.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				NewStep step = (NewStep) ((TreeItem) e.item).getData();
-				selectedSteps.add(step);
+				TreeItem item = (TreeItem) e.item;
+				NewStep step = (NewStep) item.getData();
+				if ( item.getChecked() ) {
+					selectedSteps.add(step);
+				} else {
+					selectedSteps.remove(step);
+				}
 			}
 		});
-
+		new MarkUnmatchedStepsAsPending();
 		// set the composite as the control for this page
 		setControl(composite);
 	}
@@ -76,13 +85,13 @@ public class NewStepsSelectWizardPage extends WizardPage {
 			JBehaveProject project = JBehaveProjectRegistry.get()
 					.getOrCreateProject(file.getProject());
 			IDocument document = new Document(contentOf(file));
-			StoryDocumentUtils util = new StoryDocumentUtils(
-					project.getLocalizedStepSupport());
-			for (StoryElement element : util.getStoryElements(document)) {
+			PendingStoryValidator pendingValidator = new PendingStoryValidator(project, document);
+			pendingValidator.validate(Runnables.noop());
+			for (StoryElement element : pendingValidator.getPending()) {
 				if (element.isStep()) {
 					steps.add(new NewStep(element));
 				}
-			}
+			}			
 		}
 		return steps;
 	}

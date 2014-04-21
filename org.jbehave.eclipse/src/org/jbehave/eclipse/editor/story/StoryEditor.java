@@ -57,6 +57,7 @@ import org.jbehave.eclipse.editor.story.completion.StoryContextType;
 import org.jbehave.eclipse.editor.story.outline.OutlineModel;
 import org.jbehave.eclipse.editor.story.outline.OutlineModelBuilder;
 import org.jbehave.eclipse.editor.story.outline.OutlineView;
+import org.jbehave.eclipse.editor.story.validator.MarkingStoryValidator;
 import org.jbehave.eclipse.editor.text.ColorManager;
 import org.jbehave.eclipse.editor.text.ProjectAwareFastPartitioner;
 import org.jbehave.eclipse.editor.text.TemplateUtils;

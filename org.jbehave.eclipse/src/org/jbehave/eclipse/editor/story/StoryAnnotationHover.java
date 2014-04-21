@@ -35,6 +35,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
 import org.jbehave.eclipse.JBehaveProject;
 import org.jbehave.eclipse.editor.step.StepJumper;
+import org.jbehave.eclipse.editor.story.validator.MarkingStoryValidator;
 import org.jbehave.eclipse.util.New;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

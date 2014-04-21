@@ -29,11 +29,8 @@ public class StepLocator {
 	static boolean findCandidatesCheckStepType = true;
 
 	/**
-	 * When '$who' clicks on the '$button_id' button
-	 * 
-	 * When 'Bob' clicks on the 'login' button When 'Bob' clicks on the ... When
-	 * 'Bo ...
-	 * 
+	 * Finds the step candidates starting with a given text,
+	 * ordered by their weight
 	 */
 	public Iterable<WeightedStep> findCandidatesStartingWith(
 			final String step) {
