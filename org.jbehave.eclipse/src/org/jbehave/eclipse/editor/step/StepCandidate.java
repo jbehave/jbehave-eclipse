@@ -22,6 +22,7 @@ public class StepCandidate {
 	public final Integer priority;
 	private ParametrizedStep parametrizedStep;
 	private StepPatternParser stepParser;
+	private StepMatcher matcher;
 
 	public StepCandidate(LocalizedStepSupport localizedSupport,
 			String parameterPrefix, IMethod method,
@@ -73,7 +74,7 @@ public class StepCandidate {
 	}
 
 	public boolean matches(String stepWithoutKeyword) {
-		return matcher(stepType, stepPattern).matches(stepWithoutKeyword);
+		return matcher().matches(stepWithoutKeyword);
 	}
 
 	public String toString() {
@@ -97,8 +98,11 @@ public class StepCandidate {
 		return builder.toString();
 	}
 
-	private StepMatcher matcher(StepType stepType, String stepPattern) {
-		return stepParser.parseStep(stepType, stepPattern);
+	private StepMatcher matcher() {
+		if (matcher == null) {
+			matcher = stepParser.parseStep(stepType, stepPattern);
+		}
+		return matcher;
 	}
 
 }
