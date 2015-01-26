@@ -82,7 +82,7 @@ public class MethodToStepCandidateReducer {
 
 	    if (basicStep) {
 		String stepPattern = getValue(annotationAttributes, "value");
-		priority = getValue(annotationAttributes, "priority");
+		priority = getPriority(annotationAttributes);
 
 		patterns = extractPatternVariants(patterns, stepPattern);
 	    } else if (Aliases.class.getName().equals(fullQualifiedName)) {
@@ -135,6 +135,17 @@ public class MethodToStepCandidateReducer {
 	}
 
 	return patterns;
+    }
+
+    private Integer getPriority(IMemberValuePair[] annotationAttributes) {
+	try {
+	    return getValue(annotationAttributes, "priority");
+	}
+	catch (ClassCastException ex) {
+	    // The priority was a constant or expression.
+	    // TODO it should be possible to get the value of a constant, at least
+	    return null;
+	}
     }
 
     @SuppressWarnings("unchecked")

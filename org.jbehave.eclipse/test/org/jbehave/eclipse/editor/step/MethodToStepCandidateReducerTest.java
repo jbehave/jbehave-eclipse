@@ -15,6 +15,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static java.util.Arrays.asList;
+
 @RunWith(MockitoJUnitRunner.class)
 public class MethodToStepCandidateReducerTest {
 
@@ -80,6 +82,17 @@ public class MethodToStepCandidateReducerTest {
 
 	thenListenerShouldHaveBeenInformedOnlyWith(StepType.GIVEN,
 		"a priority", 1);
+    }
+
+    @Test
+    public void testListenerNotInformedWithPriority_WhenNotRecognized()
+	    throws JavaModelException {
+	givenAnnotation("Given", "a priority", "PRIORITY");
+
+	whenTheMethodWasProcessed();
+
+	thenListenerShouldHaveBeenInformedOnlyWith(StepType.GIVEN,
+		"a priority", null);
     }
 
     @Test
@@ -263,19 +276,23 @@ public class MethodToStepCandidateReducerTest {
     }
 
     public void givenAnnotation(String elementName, String value) {
-	givenAnnotation(elementName, value, null);
-    }
-
-    public void givenAnnotation(String elementName, String value,
-	    Integer priority) {
 	final List<IMemberValuePair> attributes = new ArrayList<IMemberValuePair>();
 
 	attributes.add(getMemberValuePair("value", value));
-	if (priority != null) {
-	    attributes.add(getMemberValuePair("priority", priority));
-	}
 
-	givenAnnotation(elementName, attributes);
+	givenAnnotation(elementName, getMemberValuePair("value", value));
+    }
+
+    public void givenAnnotation(String elementName, String value,
+	    Object priority) {
+	final List<IMemberValuePair> attributes = new ArrayList<IMemberValuePair>();
+
+	attributes.add(getMemberValuePair("value", value));
+	attributes.add(getMemberValuePair("priority", priority));
+
+	givenAnnotation(elementName,
+	    getMemberValuePair("value", value),
+	    getMemberValuePair("priority", priority));
     }
 
     public void givenAliases(String[] values) {
@@ -284,6 +301,11 @@ public class MethodToStepCandidateReducerTest {
 	attributes.add(getMemberValuePair("values", values));
 	givenAnnotation("Aliases", attributes);
     }
+
+    private void givenAnnotation(String elementName,
+	    IMemberValuePair... attributes) {
+	givenAnnotation(elementName, asList(attributes));
+	}
 
     private void givenAnnotation(String elementName,
 	    List<IMemberValuePair> attributes) {
