@@ -39,7 +39,7 @@ public class RegexUtils {
         }
     }
     
-    public static Pattern COMMENT_PATTERN = Pattern.compile("^\\s*!--[^\r\n]*[\r\n]{0,2}", Pattern.MULTILINE);     
+    public static Pattern COMMENT_PATTERN = Pattern.compile("^\\s*!--\\s[^\r\n]*[\r\n]{0,2}", Pattern.MULTILINE);     
     public static String removeComment(String input) {
         return COMMENT_PATTERN.matcher(input).replaceAll("");
     }
