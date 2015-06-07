@@ -32,7 +32,6 @@ public class OutlineView extends ContentOutlinePage {
         // IStructuredSelection sel = (IStructuredSelection) pageSite.getWorkbenchWindow().getSelectionService().getSelection();
         
         textListener = new ITextListener() {
-            @Override
             public void textChanged(TextEvent event) {
                 refresh();
             }

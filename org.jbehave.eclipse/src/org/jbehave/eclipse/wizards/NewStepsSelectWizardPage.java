@@ -42,7 +42,6 @@ public class NewStepsSelectWizardPage extends WizardPage {
 		return new ArrayList<NewStep>(selectedSteps);
 	}
 
-	@Override
 	public void createControl(Composite parent) {
 		// create the composite to hold the widgets
 		Composite composite = new Composite(parent, SWT.NONE);

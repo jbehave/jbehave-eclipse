@@ -25,8 +25,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <eclipse.release>kepler</eclipse.release>
-    <tycho.version>0.15.0</tycho.version>
+    <eclipse.release>luna</eclipse.release>
+    <tycho.version>0.23.0</tycho.version>
     <tycho.test.jvmArgs></tycho.test.jvmArgs>
   </properties>
 
@@ -147,10 +147,16 @@
 
   <profiles>
     <profile>
-      <id>kepler</id>
+      <id>luna</id>
       <activation>
         <activeByDefault>true</activeByDefault>
       </activation>
+      <properties>
+        <eclipse.release>luna</eclipse.release>
+      </properties>
+    </profile>
+    <profile>
+      <id>kepler</id>
       <properties>
         <eclipse.release>kepler</eclipse.release>
       </properties>

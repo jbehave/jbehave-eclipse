@@ -303,20 +303,16 @@ public class MethodToStepCandidateReducerTest {
     private IMemberValuePair getMemberValuePair(final String name,
 	    final Object value) {
 	return new IMemberValuePair() {
-
-	    @Override
 	    public int getValueKind() {
-		return 0;
+	    	return 0;
 	    }
 
-	    @Override
 	    public Object getValue() {
-		return value;
+	    	return value;
 	    }
 
-	    @Override
 	    public String getMemberName() {
-		return name;
+	    	return name;
 	    }
 	};
     }

@@ -37,7 +37,6 @@ public class StoryView extends ViewPart {
     public void init(IViewSite site) throws PartInitException {
         super.init(site);
         site.getWorkbenchWindow().getSelectionService().addSelectionListener(new ISelectionListener() {
-            @Override
             public void selectionChanged(IWorkbenchPart part, ISelection selection) {
                 if(selection.isEmpty() || !(selection instanceof IStructuredSelection))
                     return;
@@ -59,39 +58,31 @@ public class StoryView extends ViewPart {
         });
         site.getPage().addPartListener(new IPartListener2() {
             
-            @Override
             public void partVisible(IWorkbenchPartReference partRef) {
             }
             
-            @Override
             public void partOpened(IWorkbenchPartReference partRef) {
                 changeContent(partRef);
             }
             
-            @Override
             public void partInputChanged(IWorkbenchPartReference partRef) {
                 changeContent(partRef);
             }
             
-            @Override
             public void partHidden(IWorkbenchPartReference partRef) {
             }
             
-            @Override
             public void partDeactivated(IWorkbenchPartReference partRef) {
             }
             
-            @Override
             public void partClosed(IWorkbenchPartReference partRef) {
                 clearContent(partRef);
             }
             
-            @Override
             public void partBroughtToTop(IWorkbenchPartReference partRef) {
                 changeContent(partRef);
             }
             
-            @Override
             public void partActivated(IWorkbenchPartReference partRef) {
                 changeContent(partRef);                
             }

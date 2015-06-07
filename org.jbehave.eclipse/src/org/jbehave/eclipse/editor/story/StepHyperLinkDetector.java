@@ -20,7 +20,6 @@ public class StepHyperLinkDetector implements IHyperlinkDetector {
 
     private IHyperlink[] NONE = null;// new IHyperlink[0];
 
-    @Override
     public IHyperlink[] detectHyperlinks(final ITextViewer viewer, final IRegion region,
             boolean canShowMultipleHyperlinks) {
 
@@ -49,22 +48,18 @@ public class StepHyperLinkDetector implements IHyperlinkDetector {
         }
         IHyperlink link = new IHyperlink() {
 
-            @Override
             public IRegion getHyperlinkRegion() {
                 return new Region(element.getOffset(), element.getContentWithoutTrailingComment().length());
             }
 
-            @Override
             public String getHyperlinkText() {
                 return element.getContent();
             }
 
-            @Override
             public String getTypeLabel() {
                 return "Go to step";
             }
 
-            @Override
             public void open() {
                 try {
                     new StepJumper(jbehaveProject).jumpToMethod(viewer, element);

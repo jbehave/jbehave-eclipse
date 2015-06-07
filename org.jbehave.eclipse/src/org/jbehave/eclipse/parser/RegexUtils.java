@@ -55,7 +55,6 @@ public class RegexUtils {
         }
         final List<Token> tokens = New.arrayList();
         tokenize(COMMENT_PATTERN, input, new TokenizerCallback() {
-            @Override
             public void token(int startOffset, int endOffset, String token, boolean isDelimiter) {
                 tokens.add(new Token(token, isDelimiter));
             }

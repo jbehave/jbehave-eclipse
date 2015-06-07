@@ -90,19 +90,16 @@ public class EditorColorPreferencePage extends PreferencePage implements org.ecl
         styleRangeConverter = new StyleRangeConverter(colorManager);
         
         SelectionListener styleChangedListener = new SelectionListener() {
-            @Override
             public void widgetSelected(SelectionEvent event) {
                 adjustButtonStatusAndColors();
                 updatePreview();
             }
 
-            @Override
             public void widgetDefaultSelected(SelectionEvent event) {
             }
         };
         
         IPropertyChangeListener styleChangedPropertyListener = new IPropertyChangeListener() {
-            @Override
             public void propertyChange(PropertyChangeEvent event) {
                 ColorSelector selector = (ColorSelector)event.getSource();
                 selector.getButton().setToolTipText(selector.getColorValue().toString());
@@ -124,11 +121,9 @@ public class EditorColorPreferencePage extends PreferencePage implements org.ecl
         themeCombo = new Combo(container, SWT.NONE|SWT.READ_ONLY);
         themeCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1));
         themeCombo.addSelectionListener(new SelectionListener() {
-           @Override
             public void widgetDefaultSelected(SelectionEvent event) {
                widgetSelected(event);
             }
-           @Override
             public void widgetSelected(SelectionEvent event) {
                int selectionIndex = themeCombo.getSelectionIndex();
                setCurrentTheme(themeCombo.getItem(selectionIndex));
@@ -160,7 +155,6 @@ public class EditorColorPreferencePage extends PreferencePage implements org.ecl
         keywordTree.setLabelProvider(new TextStyleLabelProvider(bundle, "text-style."));
         keywordTree.setContentProvider(new TextStyleTreeContentProvider());
         keywordTree.addSelectionChangedListener(new ISelectionChangedListener() {
-            @Override
             public void selectionChanged(SelectionChangedEvent event) {
                 ISelection selection = event.getSelection();
                 if(selection instanceof IStructuredSelection) {

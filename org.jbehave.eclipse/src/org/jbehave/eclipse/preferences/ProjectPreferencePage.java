@@ -76,12 +76,10 @@ public class ProjectPreferencePage extends PropertyPage implements
 					SWT.CENTER, false, false, 1, 1));
 			enableProjectSpecific.setText("Enable project specific settings");
 			enableProjectSpecific.addSelectionListener(new SelectionListener() {
-				@Override
 				public void widgetSelected(SelectionEvent event) {
 					adjustProjectSpecificState();
 				}
 
-				@Override
 				public void widgetDefaultSelected(SelectionEvent event) {
 					adjustProjectSpecificState();
 				}
@@ -111,12 +109,10 @@ public class ProjectPreferencePage extends PropertyPage implements
 				false, 1, 1));
 		languageCombo.setSize(279, 22);
 		languageCombo.addSelectionListener(new SelectionListener() {
-			@Override
 			public void widgetDefaultSelected(SelectionEvent event) {
 				widgetSelected(event);
 			}
 
-			@Override
 			public void widgetSelected(SelectionEvent event) {
 				int selectionIndex = languageCombo.getSelectionIndex();
 				setLanguage(languageCombo.getItem(selectionIndex));
@@ -275,7 +271,6 @@ public class ProjectPreferencePage extends PropertyPage implements
 			this.keywordImages = keywordImages;
 		}
 
-		@Override
 		public Image getColumnImage(Object element, int columnIndex) {
 			if (columnIndex == 0) {
 				return keywordImages.getImageFor((Keyword) element);
@@ -283,7 +278,6 @@ public class ProjectPreferencePage extends PropertyPage implements
 			return null;
 		}
 
-		@Override
 		public String getColumnText(Object element, int columnIndex) {
 			return ((Keyword) element).asString(keywordsFor(columnIndex));
 		}

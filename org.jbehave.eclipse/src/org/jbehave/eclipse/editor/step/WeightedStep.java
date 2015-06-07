@@ -12,14 +12,12 @@ public class WeightedStep implements Comparable<WeightedStep>, HasHTMLComment {
 		this.weight = weight;
 	}
 
-	@Override
 	public int compareTo(WeightedStep o) {
 		return (weight > o.weight) ? 1 : -1;
 	}
 
 	private String htmlComment;
 
-	@Override
 	public String getHTMLComment() {
 		if (htmlComment == null) {
 			try {

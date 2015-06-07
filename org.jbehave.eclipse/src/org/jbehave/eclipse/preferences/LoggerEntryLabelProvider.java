@@ -6,24 +6,19 @@ import org.eclipse.swt.graphics.Image;
 
 public class LoggerEntryLabelProvider implements ITableLabelProvider {
 
-    @Override
     public void addListener(ILabelProviderListener listener) {
     }
 
-    @Override
     public void removeListener(ILabelProviderListener listener) {
     }
 
-    @Override
     public void dispose() {
     }
 
-    @Override
     public Image getColumnImage(Object element, int columnIndex) {
         return null;
     }
 
-    @Override
     public String getColumnText(Object element, int columnIndex) {
         LoggerEntry entry = (LoggerEntry) element;
         switch (columnIndex) {
@@ -36,7 +31,6 @@ public class LoggerEntryLabelProvider implements ITableLabelProvider {
         }
     }
 
-    @Override
     public boolean isLabelProperty(Object element, String property) {
         return false;
     }

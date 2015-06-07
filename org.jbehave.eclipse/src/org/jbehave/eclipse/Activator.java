@@ -97,7 +97,6 @@ public class Activator extends AbstractUIPlugin {
 	    
 	    // TODO: investigate why it's not fired on preference flush...
 	    getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
-            @Override
             public void propertyChange(PropertyChangeEvent event) {
                 resetLoggerLevels();
             }
@@ -251,7 +250,6 @@ public class Activator extends AbstractUIPlugin {
 	            super.uncaughtException(t, e);
 	        }
 	    };
-	    @Override
 	    public Thread newThread(Runnable r) {
 	        Thread thr = new Thread (group, r, "JBehaveWorker#" + idGen.incrementAndGet());
 	        return thr;

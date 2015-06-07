@@ -33,48 +33,39 @@ public class StepTemplateProposal extends TemplateProposal implements
         this.weightedStep = weightedStep;
     }
     
-    @Override
     public LocalizedStepSupport getLocalizedStepSupport() {
         return jbehaveProject;
     }
     
-    @Override
     public boolean isAutoInsertable() {
         return false;
     }
 
-    @Override
     public String getDisplayString() {
         // by default it is <name> - <description>
         return getStyledDisplayString().getString();
     }
 
-    @Override
     public WeightedStep getWeightedStep() {
         return weightedStep;
     }
 
-    @Override
     public String getComplete() {
         return complete;
     }
     
-    @Override
     public String getLabel() {
         return label;
     }
 
-    @Override
     public StyledString getStyledDisplayString() {
         return StepCompletionProposalMixin.createStyledString(this);
     }
     
-    @Override
     public Image getImage() {
         return StepCompletionProposalMixin.getImage(this);
     }
 
-    @Override
     public Object getAdditionalProposalInfo(IProgressMonitor monitor) {
         return StepCompletionProposalMixin.getAdditionalHTML(this);
     }

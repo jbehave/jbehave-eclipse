@@ -52,12 +52,10 @@ public class LoggerPreferencePage extends PropertyPage implements org.eclipse.ui
             enableProjectSpecific.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
             enableProjectSpecific.setText("Enable project specific settings");
             enableProjectSpecific.addSelectionListener(new SelectionListener() {
-                @Override
                 public void widgetSelected(SelectionEvent event) {
                     adjustProjectSpecificState();
                 }
                 
-                @Override
                 public void widgetDefaultSelected(SelectionEvent event) {
                     adjustProjectSpecificState();
                 }
@@ -72,7 +70,6 @@ public class LoggerPreferencePage extends PropertyPage implements org.eclipse.ui
         return container;
     }
     
-    @Override
     public void init(IWorkbench workbench) {
     }
 

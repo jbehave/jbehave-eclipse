@@ -78,7 +78,6 @@ public class StepCandidateCacheLoader {
 	    final Effect<JavaScanner<?>> scanInitializer) {
 	return new Runnable() {
 
-	    @Override
 	    public void run() {
 		log.info("Rebuilding cache for project " + project.getElementName());
 		final MonitoredExecutor rebuildProcess = new MonitoredExecutor(
@@ -92,7 +91,6 @@ public class StepCandidateCacheLoader {
 
 		completionExecutor.execute(new Runnable() {
 
-		    @Override
 		    public void run() {
 			try {
 			    rebuildProcess.awaitCompletion();

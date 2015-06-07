@@ -41,7 +41,6 @@ public class StepContentAssistProcessor implements IContentAssistProcessor {
     
     private Logger logger = LoggerFactory.getLogger(StepContentAssistProcessor.class);
     
-    @Override
     public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, final int offset) {
         try {
             IProject project = EditorUtils.findProject(viewer);
@@ -219,27 +218,22 @@ public class StepContentAssistProcessor implements IContentAssistProcessor {
         return proposals.toArray(new ICompletionProposal[proposals.size()]);
     }
 
-    @Override
     public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
         return null;
     }
 
-    @Override
     public char[] getCompletionProposalAutoActivationCharacters() {
         return null;
     }
 
-    @Override
     public char[] getContextInformationAutoActivationCharacters() {
         return null;
     }
 
-    @Override
     public IContextInformationValidator getContextInformationValidator() {
         return null;
     }
 
-    @Override
     public String getErrorMessage() {
         return "Could not assist with step content";
     }

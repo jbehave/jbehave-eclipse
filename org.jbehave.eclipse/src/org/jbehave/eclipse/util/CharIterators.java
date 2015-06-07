@@ -7,7 +7,6 @@ public class CharIterators {
         return new CharIterator() {
             private int pos = 0;
             
-            @Override
             public int read() {
                 if(pos<text.length())
                     return text.charAt(pos++);

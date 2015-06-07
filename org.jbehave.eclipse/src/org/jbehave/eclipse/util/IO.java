@@ -46,12 +46,10 @@ public class IO {
         return new BidirectionalStream() {
             private int index;
             
-            @Override
             public void unread() {
                 index--;
             }
             
-            @Override
             public int read() {
                 if(index<seq.length())
                     return seq.charAt(index++);

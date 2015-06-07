@@ -20,7 +20,6 @@ public class Containers {
 
     public static <E> Factory<E> hierarchicalFactory() {
         return new Factory<E>() {
-            @Override
             public Container<E> create(String name) {
                 return new HierarchicalContainer<E>(name);
             };
@@ -29,7 +28,6 @@ public class Containers {
     
     public static <E> Factory<E> flatFactory() {
         return new Factory<E>() {
-            @Override
             public Container<E> create(String name) {
                 return new FlatContainer<E>(name);
             };
@@ -100,33 +98,25 @@ public class Containers {
         public WrappedProgressMonitor(IProgressMonitor delegate) {
             this.delegate = delegate;
         }
-        @Override
         public void beginTask(String name, int totalWork) {
             delegate.subTask(name);
         }
-        @Override
         public void done() {
         }
-        @Override
         public void internalWorked(double work) {
         }
-        @Override
         public boolean isCanceled() {
             return delegate.isCanceled();
         }
-        @Override
         public void setCanceled(boolean value) {
             delegate.setCanceled(value);
         }
-        @Override
         public void setTaskName(String name) {
             delegate.subTask(name);
         }
-        @Override
         public void subTask(String name) {
             delegate.subTask(name);            
         }
-        @Override
         public void worked(int work) {
         }
         

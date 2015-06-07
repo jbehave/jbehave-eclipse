@@ -27,14 +27,12 @@ public class StoryPartitionScanner implements org.eclipse.jface.text.rules.IPart
         this.localizedStepSupport = jbehaveProject.getLocalizedStepSupport();
     }
     
-    @Override
     public void setRange(IDocument document,
             int offset,
             int length) {
         setPartialRange(document, offset, length, null, -1);
     }
     
-    @Override
     public void setPartialRange(IDocument document,
             int offset,
             int length,
@@ -44,17 +42,14 @@ public class StoryPartitionScanner implements org.eclipse.jface.text.rules.IPart
         initializePartitions();
     }
     
-    @Override
     public int getTokenLength() {
         return currentPartition.length;
     }
     
-    @Override
     public int getTokenOffset() {
         return currentPartition.offset;
     }
     
-    @Override
     public IToken nextToken() {
         if(cursor<partitions.size()) {
             currentPartition = partitions.get(cursor++);

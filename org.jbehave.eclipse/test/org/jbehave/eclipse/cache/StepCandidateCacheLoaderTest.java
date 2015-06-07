@@ -74,7 +74,6 @@ public class StepCandidateCacheLoaderTest {
 	private final Executor executor = Executors.newSingleThreadExecutor();
 
 	/** {@inheritDoc} */
-	@Override
 	public void execute(Runnable command) {
 	    if (directExecution.get()) {
 		command.run();
@@ -95,7 +94,6 @@ public class StepCandidateCacheLoaderTest {
 	private void runInExecutor(final Runnable command) {
 	    executor.execute(new Runnable() {
 
-		@Override
 		public void run() {
 		    completeThreadExecution.waitForSignal();
 		    try {
@@ -111,7 +109,6 @@ public class StepCandidateCacheLoaderTest {
 
     private static final Executor DIRECT_EXECUTOR = new Executor() {
 
-	@Override
 	public void execute(Runnable command) {
 	    command.run();
 	}
@@ -219,7 +216,6 @@ public class StepCandidateCacheLoaderTest {
 
 	this.listener = new StepCandidateCacheListener() {
 
-	    @Override
 	    public void cacheLoaded(MethodCache<StepCandidate> cache) {
 		notifiedCaches.add(cache);
 	    }

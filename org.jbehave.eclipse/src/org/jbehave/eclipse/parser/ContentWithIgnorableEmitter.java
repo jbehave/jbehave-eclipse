@@ -73,7 +73,6 @@ public class ContentWithIgnorableEmitter {
 			String content) {
 		final List<Fragment> fragments = new ArrayList<Fragment>();
 		RegexUtils.tokenize(ignorablePattern, content, new TokenizerCallback() {
-			@Override
 			public void token(int startOffset, int endOffset, String token,
 					boolean isDelimiter) {
 				fragments

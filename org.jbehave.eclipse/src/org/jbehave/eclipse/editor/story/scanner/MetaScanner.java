@@ -72,7 +72,6 @@ public class MetaScanner extends StoryTokenScanner {
 
     private Chain metaChain() {
         return new Chain() {
-            @Override
             public void next(int offset, String content) {
                 parseMetaProperties(offset, content);
             }
@@ -83,7 +82,6 @@ public class MetaScanner extends StoryTokenScanner {
 
     protected void parseMetaProperties(final int offset, String content) {
         RegexUtils.splitLine(content, new TokenizerCallback() {
-            @Override
             public void token(int startOffset, int endOffset, String line, boolean isDelimiter) {
                 if(isDelimiter) {
                     emit(getDefaultToken(), offset + startOffset, line.length());

@@ -60,7 +60,6 @@ public class StepScannerStyledTest {
         when(jbehaveProject.getProjectPreferences()).thenReturn(new ProjectPreferences());
         doAnswer(new Answer() {
             @SuppressWarnings("unchecked")
-            @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 Visitor<StepCandidate, ?> visitor = (Visitor<StepCandidate, ?>)invocation.getArguments()[0];
                 visitor.visit(candidate);
@@ -69,7 +68,6 @@ public class StepScannerStyledTest {
         }).when(jbehaveProject).traverseSteps(Mockito.<Visitor<StepCandidate, ?>>any());
         
         scanner = new StepScanner(jbehaveProject, textAttributeProvider) {
-            @Override
             protected Token newToken(String styleId) {
                 return new Token(styleId);
             }
@@ -82,7 +80,6 @@ public class StepScannerStyledTest {
 	@Test
     public void useCase_ex1() {
         when(stepLocator.findFirstMatchingCandidate(Mockito.anyString())).thenAnswer(new Answer<StepCandidate>() {
-            @Override
             public StepCandidate answer(InvocationOnMock invocation) throws Throwable {
                 System.out.println("StepScannerStyledTest.useCase_ex1(" + invocation + ")");
                 return candidate;

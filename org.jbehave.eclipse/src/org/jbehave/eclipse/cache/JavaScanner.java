@@ -72,7 +72,6 @@ public class JavaScanner<T> {
 
     private Runnable traverseAsRunnable(final IPackageFragmentRoot packageFragmentRoot, final T argument) {
         return new Runnable() {
-            @Override
             public void run() {
                 if(packageRootNameFilter.f(packageFragmentRoot.getElementName())
                     && visitor.visit(packageFragmentRoot, argument)) {
@@ -98,7 +97,6 @@ public class JavaScanner<T> {
 
     private Runnable traverseAsRunnable(final IPackageFragment packageFragment, final T arg) {
         return new Runnable() {
-            @Override
             public void run() {
                 if(packageNameFilter.f(packageFragment.getElementName())
                    && visitor.visit(packageFragment, arg)) {
@@ -140,7 +138,6 @@ public class JavaScanner<T> {
 
     private Runnable traverseAsRunnable(final IClassFile classFile, final T arg) {
         return new Runnable() {
-            @Override
             public void run(){
                 if(classNameFilter.f(classFile.getElementName())
                    && visitor.visit(classFile, arg)) {
@@ -155,7 +152,6 @@ public class JavaScanner<T> {
 
     private Runnable traverseAsRunnable(final ICompilationUnit cunit, final T arg) {
         return new Runnable() {
-            @Override
             public void run() {
                 if(classNameFilter.f(cunit.getElementName())
                    && visitor.visit(cunit, arg)) {

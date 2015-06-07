@@ -167,7 +167,6 @@ public enum Keyword {
     
     public static Filter<Keyword> stepFilter() {
         return new Filter<Keyword>() {
-            @Override
             public boolean isAccepted(Keyword keyword) {
                 return isStep(keyword);
             }

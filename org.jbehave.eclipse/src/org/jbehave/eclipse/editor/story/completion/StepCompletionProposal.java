@@ -36,32 +36,26 @@ public class StepCompletionProposal implements ICompletionProposal,
         this.weightedStep = weightedStep;
     }
     
-    @Override
     public LocalizedStepSupport getLocalizedStepSupport() {
         return stepSupport;
     }
     
-    @Override
     public boolean isAutoInsertable() {
         return false;
     }
     
-    @Override
     public WeightedStep getWeightedStep() {
         return weightedStep;
     }
     
-    @Override
     public String getComplete() {
         return complete;
     }
     
-    @Override
     public String getLabel() {
         return label;
     }
     
-    @Override
     public void apply(IDocument document) {
         try {
             document.replace(replacementRegion.getOffset(), replacementRegion.getLength(), complete);
@@ -70,40 +64,32 @@ public class StepCompletionProposal implements ICompletionProposal,
         }
     }
 
-    @Override
     public String getAdditionalProposalInfo() {
         return StepCompletionProposalMixin.getAdditionalHTML(this);
     }
 
-    @Override
     public IContextInformation getContextInformation() {
         return contextInformation;
     }
 
-    @Override
     public String getDisplayString() {
         return getStyledDisplayString().getString();
     }
 
-    @Override
     public Image getImage() {
         return StepCompletionProposalMixin.getImage(this);
     }
 
-    @Override
     public Point getSelection(IDocument document) {
-        // TODO Auto-generated method stub
         return null;
     }
 
-    @Override
     public StyledString getStyledDisplayString() {
         if(styledString==null)
             styledString = StepCompletionProposalMixin.createStyledString(this);
         return styledString;
     }
 
-    @Override
     public Object getAdditionalProposalInfo(IProgressMonitor monitor) {
         return StepCompletionProposalMixin.getAdditionalHTML(this);
     }

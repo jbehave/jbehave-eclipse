@@ -18,7 +18,6 @@ public class SingleTokenScanner extends RuleBasedScanner {
         this.attributeKey = attributeKey;
         initialize();
         textAttributeProvider.addObserver(new Observer() {
-            @Override
             public void update(Observable o, Object arg) {
                 initialize();
             }

@@ -30,7 +30,6 @@ public class JBehaveProjectRegistry {
         
         if(listening.compareAndSet(false, true)) {
             JavaCore.addElementChangedListener(new IElementChangedListener() {
-                @Override
                 public void elementChanged(ElementChangedEvent event) {
                     notifyChanges(event.getDelta());
                 }

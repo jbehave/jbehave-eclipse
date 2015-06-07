@@ -252,7 +252,6 @@ public class StepParserTest {
         
         storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx04.story"));
         when(locator.findFirstMatchingCandidate(Mockito.anyString())).thenAnswer(new Answer<StepCandidate>() {
-            @Override
             public StepCandidate answer(InvocationOnMock invocation) throws Throwable {
                 String searched = (String) invocation.getArguments()[0];
                 if(searched.startsWith("a new account named 'networkAgent' with the following properties"))
@@ -298,7 +297,6 @@ public class StepParserTest {
         
         storyAsText = IOUtils.toString(getClass().getResourceAsStream("/data/UseCaseEx06-exampletable.story"));
         when(locator.findFirstMatchingCandidate(Mockito.anyString())).thenAnswer(new Answer<StepCandidate>() {
-            @Override
             public StepCandidate answer(InvocationOnMock invocation) throws Throwable {
                 String searched = (String) invocation.getArguments()[0];
                 if(searched.startsWith("a new account named 'networkAgent' with the following properties"))

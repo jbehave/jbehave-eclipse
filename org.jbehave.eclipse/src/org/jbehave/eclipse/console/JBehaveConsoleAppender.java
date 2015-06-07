@@ -36,7 +36,6 @@ public class JBehaveConsoleAppender extends ch.qos.logback.core.UnsynchronizedAp
     protected void append(final ILoggingEvent event) {
         // Thats probably not the most efficient way, but it works for now
         Display.getDefault().asyncExec(new Runnable() {
-            @Override
             public void run() {
                 try {
                     encoder.doEncode(event);

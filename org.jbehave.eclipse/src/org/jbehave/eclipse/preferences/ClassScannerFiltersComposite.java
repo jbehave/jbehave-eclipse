@@ -50,7 +50,6 @@ public class ClassScannerFiltersComposite extends Composite {
         filterViewer.setContentProvider(new ClassScannerFilterContentProvider());
         filterViewer.setLabelProvider(new ClassScannerFilterLabelProvider());
         filterViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-            @Override
             public void selectionChanged(SelectionChangedEvent event) {
                 displaySelectedElement();
             }
@@ -59,12 +58,10 @@ public class ClassScannerFiltersComposite extends Composite {
         removeButton = new Button(this, SWT.NONE);
         removeButton.setText("Remove");
         removeButton.addSelectionListener(new SelectionListener() {
-            @Override
             public void widgetSelected(SelectionEvent event) {
                 removeSelectedElements();
             }
             
-            @Override
             public void widgetDefaultSelected(SelectionEvent event) {
                 removeSelectedElements();
             }
@@ -124,12 +121,10 @@ public class ClassScannerFiltersComposite extends Composite {
         addInclude = new Button(composite, SWT.NONE);
         addInclude.setText("Include");
         addInclude.addSelectionListener(new SelectionListener() {
-            @Override
             public void widgetSelected(SelectionEvent arg0) {
                 addFilter(false);
             }
             
-            @Override
             public void widgetDefaultSelected(SelectionEvent arg0) {
                 addFilter(false);
             }
@@ -138,12 +133,10 @@ public class ClassScannerFiltersComposite extends Composite {
         addExclude = new Button(composite, SWT.NONE);
         addExclude.setText("Exclude");
         addExclude.addSelectionListener(new SelectionListener() {
-            @Override
             public void widgetSelected(SelectionEvent arg0) {
                 addFilter(true);
             }
             
-            @Override
             public void widgetDefaultSelected(SelectionEvent arg0) {
                 addFilter(true);
             }

@@ -72,7 +72,6 @@ public class JBehaveProject implements StepCandidateCacheListener {
     protected void initializeClassScannerPreferencesAndListener(IProject project) {
         this.classScannerPreferences = new ClassScannerPreferences(project);
         this.classScannerPreferences.addListener(new IPreferenceChangeListener() {
-            @Override
             public void preferenceChange(PreferenceChangeEvent changeEvent) {
                 log.info("Class scanner preference changed [{}]: <{}> -> <{}>",
                         o(changeEvent.getKey(), changeEvent.getOldValue(), changeEvent.getNewValue()));
@@ -85,7 +84,6 @@ public class JBehaveProject implements StepCandidateCacheListener {
     protected void initializeProjectPreferencesAndListener(IProject project) {
         this.projectPreferences = new ProjectPreferences(project);
         this.projectPreferences.addListener(new IPreferenceChangeListener() {
-            @Override
             public void preferenceChange(PreferenceChangeEvent changeEvent) {
                 log.info("Project preference changed [{}]: <{}> -> <{}>",
                         o(changeEvent.getKey(), changeEvent.getOldValue(), changeEvent.getNewValue()));
@@ -153,9 +151,7 @@ public class JBehaveProject implements StepCandidateCacheListener {
 
     private StepCandidateReduceListener getStepCandidateReduceListener(
 	    final Container<StepCandidate> container) {
-	return new StepCandidateReduceListener() {
-	    
-	    @Override
+	return new StepCandidateReduceListener() {	    
 	    public void add(IMethod method, StepType stepType, String stepPattern,
 		    Integer priority) {
 		container.add(new StepCandidate(getLocalizedStepSupport(),
@@ -213,10 +209,8 @@ public class JBehaveProject implements StepCandidateCacheListener {
 
     private static Executor getSystemJobAsExecutor(final String jobName) {
 	return new Executor() {
-	    
-	    @Override
 	    public void execute(Runnable command) {
-		JBehaveProject.runRunnableAsSystemJob(command, jobName);
+	    	JBehaveProject.runRunnableAsSystemJob(command, jobName);
 	    }
 	};
     }
@@ -237,17 +231,15 @@ public class JBehaveProject implements StepCandidateCacheListener {
     }
 
     /** {@inheritDoc} */
-    @Override
-    public void cacheLoaded(MethodCache<StepCandidate> cache) {
-	this.cache = cache;
-
-	for (JBehaveProjectListener listener : listeners) {
-	    try {
-		listener.stepsUpdated();
-	    } catch (Exception e) {
-		log.error("Error during step invalidation notification: {}",
-			listener, e);
-	    }
+	public void cacheLoaded(MethodCache<StepCandidate> cache) {
+		this.cache = cache;
+		for (JBehaveProjectListener listener : listeners) {
+			try {
+				listener.stepsUpdated();
+			} catch (Exception e) {
+				log.error("Error during step invalidation notification: {}",
+						listener, e);
+			}
+		}
 	}
-    }
 }

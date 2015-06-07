@@ -9,14 +9,12 @@ public class AllInOnePartitionScanner implements org.eclipse.jface.text.rules.IP
     private IDocument document;
     private boolean consumed;
 
-    @Override
     public void setRange(IDocument document,
             int offset,
             int length) {
         setPartialRange(document, offset, length, null, -1);
     }
     
-    @Override
     public void setPartialRange(IDocument document,
             int offset,
             int length,
@@ -26,17 +24,14 @@ public class AllInOnePartitionScanner implements org.eclipse.jface.text.rules.IP
         this.consumed = false;
     }
     
-    @Override
     public int getTokenLength() {
         return document.getLength();
     }
     
-    @Override
     public int getTokenOffset() {
         return 0;
     }
     
-    @Override
     public IToken nextToken() {
         if(!consumed) {
             consumed = true;

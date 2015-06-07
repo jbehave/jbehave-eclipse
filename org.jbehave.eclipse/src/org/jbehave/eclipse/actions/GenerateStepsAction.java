@@ -14,7 +14,6 @@ public class GenerateStepsAction implements IObjectActionDelegate {
 	private IWorkbench workbench;
 	private IStructuredSelection selection;
 
-	@Override
 	public void run(IAction action) {
 		GenerateStepsWizard wizard = new GenerateStepsWizard();
 		wizard.init(workbench, selection);
@@ -23,14 +22,12 @@ public class GenerateStepsAction implements IObjectActionDelegate {
 		dialog.open();
 	}
 
-	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
 		if (selection instanceof IStructuredSelection) {
 			this.selection = (IStructuredSelection) selection;
 		}
 	}
 
-	@Override
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
 		workbench = targetPart.getSite().getWorkbenchWindow().getWorkbench();
 	}

@@ -53,7 +53,6 @@ public class LoggerEntriesComposite extends Composite {
         filterViewer.setContentProvider(new LoggerEntryContentProvider());
         filterViewer.setLabelProvider(new LoggerEntryLabelProvider());
         filterViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-            @Override
             public void selectionChanged(SelectionChangedEvent event) {
                 displaySelectedElement();
             }
@@ -63,12 +62,10 @@ public class LoggerEntriesComposite extends Composite {
         removeButton = new Button(this, SWT.NONE);
         removeButton.setText("Remove");
         removeButton.addSelectionListener(new SelectionListener() {
-            @Override
             public void widgetSelected(SelectionEvent event) {
                 removeSelectedElements();
             }
             
-            @Override
             public void widgetDefaultSelected(SelectionEvent event) {
                 removeSelectedElements();
             }
@@ -126,12 +123,10 @@ public class LoggerEntriesComposite extends Composite {
         Button btnAdd = new Button(grpFilter, SWT.NONE);
         btnAdd.setText("Add");
         btnAdd.addSelectionListener(new SelectionListener() {
-            @Override
             public void widgetSelected(SelectionEvent arg0) {
                 addLoggerEntry();
             }
             
-            @Override
             public void widgetDefaultSelected(SelectionEvent arg0) {
                 addLoggerEntry();
             }

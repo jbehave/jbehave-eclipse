@@ -59,7 +59,6 @@ public abstract class StoryTokenScanner implements ITokenScanner {
         this.jbehaveProject = jbehaveProject;
         this.textAttributeProvider = textAttributeProvider;
         textAttributeProvider.addObserver(new Observer() {
-            @Override
             public void update(Observable o, Object arg) {
                 initialize();
             }
@@ -94,17 +93,14 @@ public abstract class StoryTokenScanner implements ITokenScanner {
         return defaultToken;
     }
     
-    @Override
     public int getTokenLength() {
         return fragments.get(cursor).getLength();
     }
     
-    @Override
     public int getTokenOffset() {
         return fragments.get(cursor).getOffset();
     }
     
-    @Override
     public IToken nextToken() {
         if(cursor==-1) {
             evaluateFragments();
@@ -193,11 +189,9 @@ public abstract class StoryTokenScanner implements ITokenScanner {
     private Callback<IToken> emitterCallback() {
         if(emitterCallback==null) {
             emitterCallback = new Callback<IToken>() {
-                @Override
                 public void emit(IToken arg, int offset, int length) {
                     StoryTokenScanner.this.emit(arg, offset, length);
                 }
-                @Override
                 public void emitIgnorable(int offset, int length) {
                     emit(commentToken, offset, length);
                 }
@@ -274,7 +268,6 @@ public abstract class StoryTokenScanner implements ITokenScanner {
     
     protected void emitTable(final ContentWithIgnorableEmitter emitter, final IToken defaultToken, final int offset, String content) {
         RegexUtils.splitLine(content, new TokenizerCallback() {
-            @Override
             public void token(int startOffset, int endOffset, String line, boolean isDelimiter) {
                 if(isDelimiter)
                     emit(emitter, defaultToken, offset + startOffset, line.length());
@@ -288,7 +281,6 @@ public abstract class StoryTokenScanner implements ITokenScanner {
     
     protected void emitCommentAware(final IToken defaultToken, final int offset, String content) {
         RegexUtils.splitLine(content, new TokenizerCallback() {
-            @Override
             public void token(int startOffset, int endOffset, String line, boolean isDelimiter) {
                 if(line.trim().startsWith("!--"))
                     emit(commentToken, offset + startOffset, line.length());
@@ -300,7 +292,6 @@ public abstract class StoryTokenScanner implements ITokenScanner {
 
     public Chain commentAwareChain(final IToken token) {
         return new Chain() {
-            @Override
             public void next(int offset, String content) {
                 emitCommentAware(token, offset, content);
             }
@@ -337,7 +328,6 @@ public abstract class StoryTokenScanner implements ITokenScanner {
      * 
      * @see org.eclipse.jface.text.rules.ITokenScanner#setRange(org.eclipse.jface.text.IDocument, int, int)
      */
-    @Override
     public void setRange(IDocument document, int offset, int length) {
         log.debug("Range(offset: " +  offset + ", length: " + length + ", document length: " + document.getLength() + ")");
         if((offset+length)>document.getLength())

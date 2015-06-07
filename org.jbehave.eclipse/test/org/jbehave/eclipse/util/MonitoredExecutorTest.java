@@ -29,7 +29,6 @@ public class MonitoredExecutorTest {
         for(int i=0;i<NB;i++) {
             final int iRef = i;
             group.execute(new Runnable () {
-                @Override
                 public void run() {
                     for(int i=0;i<NB_TASKS;i++) {
                         group.execute(new Task(iRef+"-"+i, counter));
@@ -53,7 +52,6 @@ public class MonitoredExecutorTest {
             this.counter = counter;
         }
 
-        @Override
         public void run() {
             try {
                 Thread.sleep(random.nextInt(17));
