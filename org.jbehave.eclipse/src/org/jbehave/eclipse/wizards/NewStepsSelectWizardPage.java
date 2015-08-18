@@ -50,23 +50,67 @@ public class NewStepsSelectWizardPage extends WizardPage {
 
 		Tree tree = new Tree(composite, SWT.CHECK | SWT.BORDER | SWT.V_SCROLL
 				| SWT.H_SCROLL);
-		tree.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		tree.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		TreeItem selectAllItem = new TreeItem(tree, SWT.NONE);
+		selectAllItem.setText(WizardsMessages.GenerateStepsCheckboxAllScenarios);
+		selectAllItem.setChecked(false);
+
 		for (NewStep step : steps()) {
-			TreeItem item = new TreeItem(tree, SWT.NONE);
+			TreeItem item = new TreeItem(selectAllItem, SWT.NONE);
 			item.setData(step);
 			item.setText(step.asString());
 			item.setChecked(false);
 		}
-		tree.setSize(100, 100);
+		selectAllItem.setExpanded(true);
+
 		tree.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				TreeItem item = (TreeItem) e.item;
 				NewStep step = (NewStep) item.getData();
-				if ( item.getChecked() ) {
-					selectedSteps.add(step);
+
+				if (item.getParentItem() != null) {
+					// Leaf item selected
+					
+					if (item.getChecked()) {
+						selectedSteps.add(step);
+						
+						TreeItem selectAllItem = item.getParentItem();
+						TreeItem[] childItems = selectAllItem.getItems();
+						
+						boolean allChecked = true;
+						// Verify if "All Scenarios" checkbox needs selection
+						for (int i = 0; i < childItems.length; i++) {
+							if(!childItems[i].getChecked()) {
+								allChecked = false;
+									break;
+							}
+						}
+						
+						selectAllItem.setChecked(allChecked);
+					} else {
+						selectedSteps.remove(step);
+						
+						// Uncheck "All Scenarios" checkbox
+						item.getParentItem().setChecked(false);
+					}
 				} else {
-					selectedSteps.remove(step);
+				// Root item selected
+
+				TreeItem[] childItems = item.getItems();
+				TreeItem child = null;
+
+				for (int i = 0; i < childItems.length; i++) {
+					child = childItems[i];
+
+					if (item.getChecked()) {
+						selectedSteps.add((NewStep) child.getData());
+					} else {
+						selectedSteps.remove((NewStep) child.getData());
+					}
+					child.setChecked(item.getChecked());
+				}
 				}
 			}
 		});

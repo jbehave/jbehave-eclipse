@@ -20,6 +20,7 @@ public class WizardsMessages extends NLS {
 	public static String NewStoryWizardPageFileName;
 	public static String NewStoryWizardPageFileExtension;
 	public static String NewStoryWizardPageInitialContents;
+	public static String GenerateStepsCheckboxAllScenarios;
 	
 	static {
 		// initialize resource bundle
