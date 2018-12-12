@@ -12,6 +12,7 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.TextEditorAction;
+import org.jbehave.core.model.ExamplesTableProperties;
 import org.jbehave.core.model.TableTransformers;
 import org.jbehave.eclipse.Activator;
 import org.jbehave.eclipse.editor.story.StoryEditor;
@@ -21,7 +22,7 @@ import fj.Effect;
 /**
  * Takes the text selection and formats it as a table if a table separator is
  * found. It also replaces all tabs in the text with table separators.
- * 
+ *
  * <p>TODO:  A more generic story formatting solution should be based on
  * {@link IContentFormatter} and {@link IFormattingStrategy}.
  * </p>
@@ -73,7 +74,7 @@ public class FormatTableAction extends TextEditorAction {
 
 	private String format(String text) {
 		return new TableTransformers().transform(TableTransformers.FORMATTING,
-				text, new Properties());
+				text, new ExamplesTableProperties(new Properties()));
 	}
 
 	private String replaceTabs(StoryEditor storyEditor, String text) {
@@ -81,7 +82,7 @@ public class FormatTableAction extends TextEditorAction {
 		properties.setProperty("replacing", "\t");
 		properties.setProperty("replacement", tableValueSeparator(storyEditor));
 		return new TableTransformers().transform(TableTransformers.REPLACING,
-				text, properties);
+				text, new ExamplesTableProperties(properties));
 	}
 
 	private String tableValueSeparator(StoryEditor storyEditor) {
