@@ -14,7 +14,7 @@
   <name>JBehave Eclipse Plugin</name>
 
   <properties>
-    <jbehave.version>3.9.2</jbehave.version>
+    <jbehave.version>4.3.5</jbehave.version>
     <functionaljava.version>3.0</functionaljava.version>
     <guava.version>10.0.1</guava.version>
   </properties>
