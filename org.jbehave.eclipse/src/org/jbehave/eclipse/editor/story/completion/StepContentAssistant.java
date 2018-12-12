@@ -1,5 +1,7 @@
 package org.jbehave.eclipse.editor.story.completion;
 
+import org.eclipse.jdt.ui.PreferenceConstants;
+import org.eclipse.jface.internal.text.html.BrowserInformationControl;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
@@ -56,6 +58,10 @@ public class StepContentAssistant extends ContentAssistant {
         setInformationControlCreator(new IInformationControlCreator() {
             public IInformationControl createInformationControl(
                     final Shell parent) {
+                if (BrowserInformationControl.isAvailable(parent)) {
+                    String font= PreferenceConstants.APPEARANCE_JAVADOC_FONT;
+                    return new BrowserInformationControl(parent, font, true);
+                }
                 return new DefaultInformationControl(parent, true) {
                     @Override
                     public void setInformation(String content) {
