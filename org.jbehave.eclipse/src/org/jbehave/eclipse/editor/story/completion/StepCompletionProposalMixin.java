@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.internal.ui.text.java.hover.JavadocHover;
 import org.eclipse.jdt.ui.JavadocContentAccess;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
@@ -61,8 +63,7 @@ public class StepCompletionProposalMixin {
         String htmlString = "<b>" + step.fullStep() + "</b>";
         htmlString += "<br><br>";
         try {
-            Reader reader = JavadocContentAccess.getContentReader(step.method, true);
-            String javadoc = IOUtils.toString(reader);//JDTUtils.getJavadocOf();
+            String javadoc = JavadocHover.getHoverInfo(new IJavaElement[] { step.method }, null, null, null).getHtml();
             if(StringUtils.isBlank(javadoc)) {
                 javadoc = "<small>No Javadoc</small>";
             }
