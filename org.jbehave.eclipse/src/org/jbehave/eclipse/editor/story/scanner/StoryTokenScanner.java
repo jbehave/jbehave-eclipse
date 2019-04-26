@@ -160,12 +160,8 @@ public abstract class StoryTokenScanner implements ITokenScanner {
             log.error("Failed to consolidate fragments", e);
         }
         
-        int expected = 0;
         for(Fragment fragment : fragments) {
-            if(fragment.offset!=expected)
-                log.warn("humpff");
-            log.debug("fragment: {}, {}, {}", o(fragment.offset, fragment.length, fragment.token.getData()));
-            expected = fragment.offset + fragment.length;
+          log.debug("fragment: {}, {}, {}", o(fragment.offset, fragment.length, fragment.token.getData()));
         }
     }
 

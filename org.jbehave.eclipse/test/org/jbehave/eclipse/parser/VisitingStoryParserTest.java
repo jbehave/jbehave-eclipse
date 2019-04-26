@@ -45,6 +45,26 @@ public class VisitingStoryParserTest {
 
         assertElements(expected, parser.parse(storyAsText));
     }
+    
+    @Test
+    public void parse_cas1_with_leading_whitespace() throws IOException {
+      String story = "/data/LeadingWhitespace.story";
+      String storyAsText = readToString(story);
+
+      String[] expected = {
+              "offset: 0, length: 11, content: >>Narrative:\n<<", //
+              "offset: 12, length: 34, content: >>In order to be more communicative\n<<", //
+              "offset: 51, length: 18, content: >>As a story writer\n<<", //
+              "offset: 69, length: 109, content: >>I want to explain the use of And steps and also show that I can use keywords in scenario title and comments\n\n<<", //
+              "offset: 178, length: 57, content: >>Scenario: And steps should match the previous step type\n\n<<", //
+              "offset: 235, length: 20, content: >>Given a 5 by 5 game\n<<", //
+              "offset: 255, length: 33, content: >>When I toggle the cell at (2, 3)\n<<", //
+              "offset: 288, length: 61, content: >>Then the grid should look like\n.....\n.....\n.....\n..X..\n.....\n<<", //
+              "offset: 349, length: 33, content: >>When I toggle the cell at (2, 4)\n<<", //
+              "offset: 382, length: 61, content: >>Then the grid should look like\n.....\n.....\n.....\n..X..\n..X..\n<<" };
+
+      assertElements(expected, parser.parse(storyAsText));
+    }
 
     @Test
     public void parse_case1A() throws IOException {
